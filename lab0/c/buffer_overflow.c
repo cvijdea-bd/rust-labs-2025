@@ -24,7 +24,7 @@ char* vulnerable_function(char *user_input) {
 }
 
 int main() {
-    char malicious_input[] = "hi"; // 11 bytes (10 + null terminator)
+    char malicious_input[] = "hidasdasdasdsadasdasdauydfsajkfgjadshfgkadsfgsdakj"; // 11 bytes (10 + null terminator)
 
     char* malicious_buffer = vulnerable_function(malicious_input);
     

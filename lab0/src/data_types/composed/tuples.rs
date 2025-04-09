@@ -1,1 +1,1 @@
-pub const EASY_TUPLE: (i32, f64, char) = (1, 2.0, 'A'); // [0, 65535]
+pub const EASY_TUPLE: (i32, bool, char) = (1, false, 'A'); // [0, 65535]

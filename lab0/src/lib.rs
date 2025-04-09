@@ -1,6 +1,5 @@
 pub mod data_types;
 pub mod directory_module;
-pub mod lifetimes;
 pub mod macros;
 pub mod ownership;
 

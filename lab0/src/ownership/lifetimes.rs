@@ -18,7 +18,7 @@ impl Foo<'_> {
 }
 
 pub fn example_invalid() {
-    let s = "hello".to_owned();
+    let s = String::from("a");
     let f = Foo { a: &s };
     // let handle = std::thread::spawn(move || {
     //     f.foo();

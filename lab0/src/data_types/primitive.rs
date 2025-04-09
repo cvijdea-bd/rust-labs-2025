@@ -16,7 +16,7 @@ pub const SIGNED_USIZE: isize = isize::MIN;
 pub const UNSIGNED_USIZE: usize = usize::MAX;
 
 // Number literals
-pub const DECIMAL: i32 = -98_222;
+pub const DECIMAL: i32 = -98_000_222;
 pub const HEXADECIMAL: i32 = 0xFF; // 255
 pub const OCTAL: i32 = 0o77; // 63
 pub const BINARY: i32 = 0b1111_1111; // 255

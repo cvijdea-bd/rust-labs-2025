@@ -33,3 +33,8 @@ pub struct GreetingB;
 
 declare_greeting!(GreetingA, String, String::from("Hello from GreetingA!"));
 declare_greeting!(GreetingB, u64, 0xFEFE);
+
+pub fn greet() {
+    let x = GreetingA::greet();
+    let y = GreetingB::greet();
+}

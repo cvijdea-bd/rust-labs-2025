@@ -30,6 +30,9 @@ pub enum FreakyEnum {
 
 pub fn option_match() {
     let x: Option<i32> = Some(5);
+
+    let x = Option::Some(5);
+    // let y = Option::None;
     
     match x {
         Some(value) => println!("Value: {}", value),
@@ -57,20 +60,20 @@ pub fn option_match() {
 pub fn result_match() {
     let x: Result<i32, String> = Ok(5);
     
-    // match x {
-    //     Ok(value) => println!("Value: {}", value),
-    //     Err(err) => println!("Error: {}", err),
-    // }
+    match x {
+        Ok(value) => println!("Value: {}", value),
+        Err(err) => println!("Error: {}", err),
+    }
     
-    if x.is_ok() {
-        println!("Value exists");
-    } else {
-        println!("Error");
-    }
+    // if x.is_ok() {
+    //     println!("Value exists");
+    // } else {
+    //     println!("Error");
+    // }
 
-    if x.is_err() {
-        println!("Error");
-    } else {
-        println!("Value exists");
-    }
+    // if x.is_err() {
+    //     println!("Error");
+    // } else {
+    //     println!("Value exists");
+    // }
 }

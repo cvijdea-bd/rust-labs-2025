@@ -29,11 +29,11 @@ pub fn example_c() {
     
     // You cannot spawn both threads because 
 
-    // let _handle1 = std::thread::spawn(|| { // move
+    // let _handle1 = std::thread::spawn(move || { // move
     //     modify_string(&mut s);
     // });
 
-    // let _handle2 = std::thread::spawn(|| {
+    // let _handle2 = std::thread::spawn(move || {
     //     modify_string(&mut s);
     // });
 
