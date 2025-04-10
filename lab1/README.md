@@ -60,15 +60,25 @@ After reading the dex file into memory, the simplest way to access the fields is
 let string_ids_size = u32::from_le_bytes(bytes[56..60].try_into().unwrap());
 
 // the above line is equivalent to the following lines:
-let string_ids_size: &[u8] = &bytes[56..60];  // get a subslice of the input data; this can panic (fail) if the input file is smaller than 60 bytes
-let string_ids_size: Result<[u8; 4], std::array::TryFromSliceError> = string_ids_size.try_into(); // the subslice is of &[u8] type, which is dynamically-sized. we know it's exactly 4 bytes due to the slice index we used, but the compiler doesn't know it. we need to explicitly convert the slice type into a fixed-size array type [u8; 4]
-let string_ids_size: [u8; 4] = string_ids_size.unwrap();  // the conversion could fail, but only if we used a wrong-size slice index, such as &bytes[56..59]
-let string_ids_size: u32 = u32::from_le_bytes(string_ids_size);  // now we can pass the fixed-size array to u32::from_le_bytes
+
+// get a subslice of the input data; this can panic (fail) if the input file is smaller than 60 bytes
+let string_ids_size: &[u8] = &bytes[56..60];
+
+// the subslice is of &[u8] type, which is dynamically-sized. we know it's exactly 4 bytes due to the slice index we used, 
+// but the compiler doesn't know it. we need to explicitly convert the slice type into a fixed-size array type [u8; 4]
+let string_ids_size: Result<[u8; 4], std::array::TryFromSliceError> = string_ids_size.try_into();
+
+// the conversion could fail, but only if we used a wrong-size slice index, such as &bytes[56..59]
+let string_ids_size: [u8; 4] = string_ids_size.unwrap();  
+
+// now we can pass the fixed-size array to u32::from_le_bytes
+let string_ids_size: u32 = u32::from_le_bytes(string_ids_size);
 
 
-// You can also notice that the first line of code doesn't need any of the type annotations we used in the expanded form of the code. 
-// In rust, in most instances, the compiler can "guess" the types of intermediate variables based on the expected type where that variable is used.
-// Since u32::from_le_bytes takes an argument of [u8; 4], then the compiler can know which type we want to "try_into" the conversion of the initial slice, by working backwards. 
+// You can also notice that the first line of code doesn't need any of the type annotations we used in the expanded form
+// In rust, in most instances, the compiler can "guess" the types of intermediate variables based on the expected type
+// Since u32::from_le_bytes takes an argument of [u8; 4], then the compiler can know which type we want to "try_into" 
+//  the conversion of the initial slice, by working backwards. 
 ```
 
 Continuing to read the documentation, we can see that the `string_ids_off` field represents an "offset from the start of the file to the string identifiers list [..], the start of the string_ids section", while `string_ids_size` is the number of elements in the string_ids section. Looking at the definition of a `string_id_item` we can see that it is composed of a single uint value - string_data_off.
