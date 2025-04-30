@@ -3,6 +3,7 @@ use crate::utils::decode_uleb128;
 use super::encoded::{EncodedField, EncodedMethod};
 
 /// https://source.android.com/docs/core/runtime/dex-format#class-data-item
+#[allow(unused)]
 pub struct ClassDataItem {
     /// the defined static fields, represented as a sequence of encoded elements. The fields must be sorted by `field_idx` in increasing order.
     static_fields: Vec<EncodedField>,

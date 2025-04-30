@@ -1,11 +1,12 @@
 use crate::utils::read_u32_le;
 
+#[allow(unused)]
 pub struct MethodIdItem {
     /// index into the `type_ids` list for the definer of this method. This must be a class or array type, and not a primitive type.
     pub class_idx: u16,
     /// index into the `proto_ids` list for the prototype of this method
     pub proto_idx: u16,
-    /// index into the `string_ids` list for the name of this method. The string must conform to the syntax for MemberName, defined above.
+    /// index into the `string_ids` list for the name of this method. The string must conform to the syntax for MemberName.
     pub name_idx: u32,
 }
 

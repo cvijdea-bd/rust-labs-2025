@@ -1,21 +1,27 @@
 mod class_data_item;
 mod class_def_item;
 mod encoded;
+mod field_id_item;
 mod header;
 mod method_id_item;
+mod proto_id_item;
 mod string;
 
 use std::borrow::Cow;
 
 use crate::utils::read_u32_le;
 use class_def_item::ClassDefItem;
+use field_id_item::FieldIdItem;
 use header::HeaderItem;
 use method_id_item::MethodIdItem;
+use proto_id_item::ProtoIdItem;
 
 #[allow(unused)]
 pub struct Dex<'a> {
     pub strings: Vec<Cow<'a, str>>,
     pub types: Vec<Cow<'a, str>>,
+    pub proto_ids: Vec<ProtoIdItem>,
+    pub field_ids: Vec<FieldIdItem>,
     pub method_ids: Vec<MethodIdItem>,
     pub class_defs: Vec<ClassDefItem>,
 }
@@ -55,7 +61,39 @@ impl<'a> Dex<'a> {
         types
     }
 
-    fn read_method_id_items(buffer: &'a [u8], header: &HeaderItem) -> Vec<MethodIdItem> {
+    fn read_proto_id_items(buffer: &[u8], header: &HeaderItem) -> Vec<ProtoIdItem> {
+        let proto_ids_off = header.proto_ids_off as usize;
+        let proto_ids_size = header.proto_ids_size as usize;
+
+        let mut proto_ids = Vec::with_capacity(proto_ids_size);
+        for i in 0..proto_ids_size {
+            let offset = proto_ids_off + i * 12;
+            match ProtoIdItem::parse_from_bytes(&buffer[offset..offset + 12]) {
+                Ok(proto_id) => proto_ids.push(proto_id),
+                Err(e) => eprintln!("Failed to parse ProtoIdItem at offset {}: {}", offset, e),
+            }
+        }
+
+        proto_ids
+    }
+
+    fn read_field_id_items(buffer: &[u8], header: &HeaderItem) -> Vec<FieldIdItem> {
+        let field_ids_off = header.field_ids_off as usize;
+        let field_ids_size = header.field_ids_size as usize;
+
+        let mut field_ids = Vec::with_capacity(field_ids_size);
+        for i in 0..field_ids_size {
+            let offset = field_ids_off + i * 8;
+            match FieldIdItem::parse_from_bytes(&buffer[offset..offset + 8]) {
+                Ok(field_id) => field_ids.push(field_id),
+                Err(e) => eprintln!("Failed to parse FieldIdItem at offset {}: {}", offset, e),
+            }
+        }
+
+        field_ids
+    }
+
+    fn read_method_id_items(buffer: &[u8], header: &HeaderItem) -> Vec<MethodIdItem> {
         let method_ids_off = header.method_ids_off as usize;
         let method_ids_size = header.method_ids_size as usize;
 
@@ -71,7 +109,7 @@ impl<'a> Dex<'a> {
         method_ids
     }
 
-    fn read_class_def_items(buffer: &'a [u8], header: &HeaderItem) -> Vec<ClassDefItem> {
+    fn read_class_def_items(buffer: &[u8], header: &HeaderItem) -> Vec<ClassDefItem> {
         let class_defs_off = header.class_defs_off as usize;
         let class_defs_size = header.class_defs_size as usize;
 
@@ -92,16 +130,16 @@ impl<'a> Dex<'a> {
 
         let strings = Self::read_strings(buffer, &header_item);
         let types = Self::read_types(buffer, &header_item);
-        // let proto_id_items = todo!();
-        // let field_id_items = todo!();
-
+        let proto_ids = Self::read_proto_id_items(buffer, &header_item);
+        let field_ids = Self::read_field_id_items(buffer, &header_item);
         let method_ids = Self::read_method_id_items(buffer, &header_item);
-
         let class_defs = Self::read_class_def_items(buffer, &header_item);
 
         Ok(Self {
             strings,
             types,
+            proto_ids,
+            field_ids,
             method_ids,
             class_defs,
         })
