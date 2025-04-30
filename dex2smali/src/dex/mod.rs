@@ -1,10 +1,10 @@
-mod class_data_item;
-mod class_def_item;
-mod encoded;
-mod field_id_item;
+pub mod class_data_item;
+pub mod class_def_item;
+pub mod encoded;
+pub mod field_id_item;
 mod header;
-mod method_id_item;
-mod proto_id_item;
+pub mod method_id_item;
+pub mod proto_id_item;
 mod string;
 
 use std::borrow::Cow;
