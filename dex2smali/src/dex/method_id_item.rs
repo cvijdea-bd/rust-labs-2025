@@ -1,0 +1,31 @@
+use crate::utils::read_u32_le;
+
+pub struct MethodIdItem {
+    /// index into the `type_ids` list for the definer of this method. This must be a class or array type, and not a primitive type.
+    pub class_idx: u16,
+    /// index into the `proto_ids` list for the prototype of this method
+    pub proto_idx: u16,
+    /// index into the `string_ids` list for the name of this method. The string must conform to the syntax for MemberName, defined above.
+    pub name_idx: u32,
+}
+
+impl MethodIdItem {
+    pub fn parse_from_bytes(buffer: &[u8]) -> std::io::Result<Self> {
+        if buffer.len() < 8 {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::UnexpectedEof,
+                "Buffer too small to read MethodIdItem",
+            ));
+        }
+
+        let class_idx = u16::from_le_bytes([buffer[0], buffer[1]]);
+        let proto_idx = u16::from_le_bytes([buffer[2], buffer[3]]);
+        let name_idx = read_u32_le(buffer, 4);
+
+        Ok(MethodIdItem {
+            class_idx,
+            proto_idx,
+            name_idx,
+        })
+    }
+}

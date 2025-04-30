@@ -8,9 +8,16 @@ fn main() {
     let buffer = std::fs::read(&path).expect("Failed to read file");
     let dex = Dex::parse_from_bytes(&buffer).expect("Failed to parse DEX file");
     for (i, string) in dex.strings.iter().enumerate() {
-        println!("String {}: {}", i, string);
+        println!("String {i}: {string}");
     }
-    for (i, string) in dex.types.iter().enumerate() {
-        println!("Type {}: {}", i, string);
+    println!();
+    for (i, t) in dex.types.iter().enumerate() {
+        println!("Type {i}: {t}");
+    }
+    println!();
+    for (i, method_id) in dex.method_ids.iter().enumerate() {
+        let t = &dex.types[method_id.class_idx as usize];
+        let n = &dex.strings[method_id.name_idx as usize];
+        println!("Method {i}: {t}{n}");
     }
 }
