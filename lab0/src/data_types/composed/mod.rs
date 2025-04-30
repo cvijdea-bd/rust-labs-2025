@@ -1,3 +1,3 @@
-pub mod tuples;
-pub mod structs;
 pub mod enums;
+pub mod structs;
+pub mod tuples;

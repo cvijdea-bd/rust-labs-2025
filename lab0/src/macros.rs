@@ -26,7 +26,6 @@ macro_rules! declare_greeting {
     };
 }
 
-
 pub struct GreetingA;
 
 pub struct GreetingB;

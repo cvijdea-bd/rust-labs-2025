@@ -2,7 +2,7 @@ pub fn implicit_lifetime(s: &str) -> &str {
     s
 }
 
-pub fn explicit_lifetime<'a, 'b>(a: &'a str, _b: &'b str) -> &'a str {
+pub fn explicit_lifetime<'a>(a: &'a str, _b: &str) -> &'a str {
     a
 }
 

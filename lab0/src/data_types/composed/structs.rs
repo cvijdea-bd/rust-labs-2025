@@ -21,6 +21,9 @@ impl Person {
     }
 
     pub fn say_hello(&self) {
-        println!("Hello, my name is {} and I'm {} years old.", self.name, self.age);
+        println!(
+            "Hello, my name is {} and I'm {} years old.",
+            self.name, self.age
+        );
     }
 }

@@ -9,8 +9,8 @@ pub const UNSIGNED_INT: u32 = u32::MAX; // [0, 4294967295]
 pub const SIGNED_LONG: i64 = i64::MIN; // [-9223372036854775808, 9223372036854775807]
 pub const UNSIGNED_LONG: u64 = u64::MAX; // [0, 18446744073709551615]
 
-// he isize and usize types depend on the architecture of the computer your program is running on, 
-// which is denoted in the table as “arch”: 64 bits 
+// he isize and usize types depend on the architecture of the computer your program is running on,
+// which is denoted in the table as “arch”: 64 bits
 // if you’re on a 64-bit architecture and 32 bits if you’re on a 32-bit architecture.
 pub const SIGNED_USIZE: isize = isize::MIN;
 pub const UNSIGNED_USIZE: usize = usize::MAX;

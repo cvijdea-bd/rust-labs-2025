@@ -19,7 +19,7 @@ pub enum FreakyEnum {
         name: String,
         age: u32,
         is_student: bool,
-    }
+    },
 }
 
 // Useful builtin enums
@@ -33,12 +33,12 @@ pub fn option_match() {
 
     let x = Option::Some(5);
     // let y = Option::None;
-    
+
     match x {
         Some(value) => println!("Value: {}", value),
         None => println!("No value"),
     }
-    
+
     if x.is_some() {
         println!("Value exists");
     } else {
@@ -51,20 +51,19 @@ pub fn option_match() {
         println!("Value exists");
     }
 
-    x.map(|value| {
-        println!("Value: {}", value);
-    });
+    if let Some(value) = x {
+        println!("Value: {}", value)
+    }
 }
-
 
 pub fn result_match() {
     let x: Result<i32, String> = Ok(5);
-    
+
     match x {
         Ok(value) => println!("Value: {}", value),
         Err(err) => println!("Error: {}", err),
     }
-    
+
     // if x.is_ok() {
     //     println!("Value exists");
     // } else {

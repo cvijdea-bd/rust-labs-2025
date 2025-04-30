@@ -1,2 +1,2 @@
-pub mod primitive;
 pub mod composed;
+pub mod primitive;

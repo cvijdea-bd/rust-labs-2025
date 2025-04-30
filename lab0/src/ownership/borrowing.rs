@@ -7,7 +7,6 @@ pub fn example_a() {
 }
 
 pub fn example_b() {
-
     fn concatenate(s1: String, s2: &String) -> String {
         s1 + s2
     }
@@ -26,8 +25,8 @@ pub fn example_c() {
     fn modify_string(s: &mut String) {
         s.push_str(" modified!");
     }
-    
-    // You cannot spawn both threads because 
+
+    // You cannot spawn both threads because
 
     // let _handle1 = std::thread::spawn(move || { // move
     //     modify_string(&mut s);
