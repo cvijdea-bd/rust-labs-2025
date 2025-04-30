@@ -2,7 +2,7 @@ mod class_data_item;
 mod class_def_item;
 mod encoded;
 mod field_id_item;
-mod header;
+mod header_item;
 mod method_id_item;
 mod proto_id_item;
 mod string;
@@ -12,7 +12,7 @@ use std::borrow::Cow;
 use crate::utils::read_u32_le;
 use class_def_item::ClassDefItem;
 use field_id_item::FieldIdItem;
-use header::HeaderItem;
+use header_item::HeaderItem;
 use method_id_item::MethodIdItem;
 use proto_id_item::ProtoIdItem;
 
