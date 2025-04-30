@@ -1,4 +1,4 @@
-use crate::utils::read_u32_le;
+use crate::{traits::parse::TryParseFromBytes, utils::read_u32_le};
 
 /// https://source.android.com/docs/core/runtime/dex-format#header-item
 #[allow(unused)]
@@ -70,13 +70,13 @@ pub struct HeaderItem {
     header_offset: u32,
 }
 
-impl HeaderItem {
-    pub fn parse_from_bytes(buffer: &[u8]) -> std::io::Result<Self> {
-        let buffer = buffer.get(0..112).ok_or(std::io::Error::new(
-            std::io::ErrorKind::InvalidData,
-            "Buffer too small to contain Dex header",
-        ))?;
+impl TryParseFromBytes for HeaderItem {
+    const SIZE: usize = 112;
 
+    fn parse_from_bytes(buffer: &[u8]) -> Self
+    where
+        Self: Sized,
+    {
         let header = Self {
             magic: buffer[0..8].try_into().unwrap(),
             checksum: read_u32_le(buffer, 8),
@@ -105,6 +105,6 @@ impl HeaderItem {
             header_offset: 0,   // We will ignore this
         };
 
-        Ok(header)
+        header
     }
 }

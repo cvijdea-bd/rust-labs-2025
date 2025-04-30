@@ -9,7 +9,7 @@ mod string;
 
 use std::borrow::Cow;
 
-use crate::utils::read_u32_le;
+use crate::{traits::parse::TryParseFromBytes, utils::read_u32_le};
 use class_def_item::ClassDefItem;
 use field_id_item::FieldIdItem;
 use header::HeaderItem;
@@ -68,7 +68,7 @@ impl<'a> Dex<'a> {
         let mut proto_ids = Vec::with_capacity(proto_ids_size);
         for i in 0..proto_ids_size {
             let offset = proto_ids_off + i * 12;
-            match ProtoIdItem::parse_from_bytes(&buffer[offset..offset + 12]) {
+            match ProtoIdItem::try_parse_from_bytes(&buffer[offset..]) {
                 Ok(proto_id) => proto_ids.push(proto_id),
                 Err(e) => eprintln!("Failed to parse ProtoIdItem at offset {}: {}", offset, e),
             }
@@ -84,7 +84,7 @@ impl<'a> Dex<'a> {
         let mut field_ids = Vec::with_capacity(field_ids_size);
         for i in 0..field_ids_size {
             let offset = field_ids_off + i * 8;
-            match FieldIdItem::parse_from_bytes(&buffer[offset..offset + 8]) {
+            match FieldIdItem::try_parse_from_bytes(&buffer[offset..]) {
                 Ok(field_id) => field_ids.push(field_id),
                 Err(e) => eprintln!("Failed to parse FieldIdItem at offset {}: {}", offset, e),
             }
@@ -100,7 +100,7 @@ impl<'a> Dex<'a> {
         let mut method_ids = Vec::with_capacity(method_ids_size);
         for i in 0..method_ids_size {
             let offset = method_ids_off + i * 8;
-            match MethodIdItem::parse_from_bytes(&buffer[offset..offset + 8]) {
+            match MethodIdItem::try_parse_from_bytes(&buffer[offset..offset + 8]) {
                 Ok(method_id) => method_ids.push(method_id),
                 Err(e) => eprintln!("Failed to parse MethodIdItem at offset {}: {}", offset, e),
             }
@@ -116,7 +116,7 @@ impl<'a> Dex<'a> {
         let mut class_defs = Vec::with_capacity(class_defs_size);
         for i in 0..class_defs_size {
             let offset = class_defs_off + i * 32;
-            match ClassDefItem::parse_from_bytes(&buffer[offset..offset + 32]) {
+            match ClassDefItem::try_parse_from_bytes(&buffer[offset..]) {
                 Ok(class_def) => class_defs.push(class_def),
                 Err(e) => eprintln!("Failed to parse ClassDefItem at offset {}: {}", offset, e),
             }
@@ -126,7 +126,7 @@ impl<'a> Dex<'a> {
     }
 
     pub fn parse_from_bytes(buffer: &'a [u8]) -> std::io::Result<Self> {
-        let header_item = HeaderItem::parse_from_bytes(buffer)?;
+        let header_item = HeaderItem::try_parse_from_bytes(buffer)?;
 
         let strings = Self::read_strings(buffer, &header_item);
         let types = Self::read_types(buffer, &header_item);

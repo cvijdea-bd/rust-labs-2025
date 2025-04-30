@@ -11,7 +11,11 @@ pub struct EncodedField {
 }
 
 impl EncodedField {
-    pub fn parse_from_bytes_with_offset(buffer: &[u8], prev: u64, offset: &mut usize) -> std::io::Result<Self> {
+    pub fn parse_from_bytes_with_offset(
+        buffer: &[u8],
+        prev: u64,
+        offset: &mut usize,
+    ) -> std::io::Result<Self> {
         let (field_idx_diff, bytes_used) =
             decode_uleb128(&buffer[*offset..]).ok_or(std::io::Error::new(
                 std::io::ErrorKind::InvalidData,
@@ -26,12 +30,10 @@ impl EncodedField {
             ))?;
         *offset += bytes_used;
 
-        Ok(
-            EncodedField {
-                field_idx: prev + field_idx_diff,
-                access_flags,
-            },
-        )
+        Ok(EncodedField {
+            field_idx: prev + field_idx_diff,
+            access_flags,
+        })
     }
 }
 
@@ -48,7 +50,11 @@ pub struct EncodedMethod {
 }
 
 impl EncodedMethod {
-    pub fn parse_from_bytes_with_offset(buffer: &[u8], prev: u64, offset: &mut usize) -> std::io::Result<Self> {
+    pub fn parse_from_bytes_with_offset(
+        buffer: &[u8],
+        prev: u64,
+        offset: &mut usize,
+    ) -> std::io::Result<Self> {
         let (method_idx_diff, bytes_used) =
             decode_uleb128(&buffer[*offset..]).ok_or(std::io::Error::new(
                 std::io::ErrorKind::InvalidData,
@@ -70,12 +76,10 @@ impl EncodedMethod {
             ))?;
         *offset += bytes_used;
 
-        Ok(
-            EncodedMethod {
-                method_idx: prev + method_idx_diff,
-                access_flags,
-                code_off,
-            },
-        )
+        Ok(EncodedMethod {
+            method_idx: prev + method_idx_diff,
+            access_flags,
+            code_off,
+        })
     }
 }

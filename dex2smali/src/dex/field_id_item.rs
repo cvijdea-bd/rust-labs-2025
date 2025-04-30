@@ -1,4 +1,7 @@
-use crate::utils::read_u32_le;
+use crate::{
+    traits::parse::TryParseFromBytes,
+    utils::{read_u16_le, read_u32_le},
+};
 
 #[allow(unused)]
 pub struct FieldIdItem {
@@ -10,23 +13,20 @@ pub struct FieldIdItem {
     pub name_idx: u32,
 }
 
-impl FieldIdItem {
-    pub fn parse_from_bytes(buffer: &[u8]) -> std::io::Result<Self> {
-        if buffer.len() < 8 {
-            return Err(std::io::Error::new(
-                std::io::ErrorKind::UnexpectedEof,
-                "Buffer too small to read FieldIdItem",
-            ));
-        }
+impl TryParseFromBytes for FieldIdItem {
+    const SIZE: usize = 8;
 
-        let class_idx = u16::from_le_bytes([buffer[0], buffer[1]]);
-        let type_idx = u16::from_le_bytes([buffer[2], buffer[3]]);
+    fn parse_from_bytes(buffer: &[u8]) -> Self
+    where
+        Self: Sized,
+    {
+        let class_idx = read_u16_le(buffer, 0);
+        let type_idx = read_u16_le(buffer, 2);
         let name_idx = read_u32_le(buffer, 4);
-
-        Ok(FieldIdItem {
+        Self {
             class_idx,
             type_idx,
             name_idx,
-        })
+        }
     }
 }
