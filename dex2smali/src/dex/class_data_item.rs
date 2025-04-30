@@ -16,10 +16,40 @@ pub struct ClassDataItem {
 }
 
 impl ClassDataItem {
-    pub fn parse_from_bytes(buffer: &[u8]) -> std::io::Result<Self> {
+    fn read_encoded_fields(
+        buffer: &[u8],
+        offset: &mut usize,
+        size: usize,
+    ) -> std::io::Result<Vec<EncodedField>> {
+        let mut encoded_fields = Vec::with_capacity(size);
+        let mut prev = 0;
+        for _ in 0..size {
+            let encoded_field = EncodedField::try_parse_from_bytes_with_offset(buffer, prev, offset)?;
+            prev = encoded_field.field_idx;
+            encoded_fields.push(encoded_field);
+        }
+        Ok(encoded_fields)
+    }
+
+    fn read_encoded_methods(
+        buffer: &[u8],
+        offset: &mut usize,
+        size: usize,
+    ) -> std::io::Result<Vec<EncodedMethod>> {
+        let mut encoded_methods = Vec::with_capacity(size);
+        let mut prev = 0;
+        for _ in 0..size {
+            let encoded_method = EncodedMethod::try_parse_from_bytes_with_offset(buffer, prev, offset)?;
+            prev = encoded_method.method_idx;
+            encoded_methods.push(encoded_method);
+        }
+        Ok(encoded_methods)
+    }
+
+    pub fn try_try_parse_from_bytes(buffer: &[u8]) -> std::io::Result<Self> {
         let mut offset = 0;
         let (static_fields_size, bytes_used) =
-            decode_uleb128(&buffer[offset..]).ok_or(std::io::Error::new(
+            decode_uleb128(&buffer).ok_or(std::io::Error::new(
                 std::io::ErrorKind::InvalidData,
                 "Failed to decode ULEB128 for static fields size",
             ))?;
@@ -44,12 +74,25 @@ impl ClassDataItem {
                 std::io::ErrorKind::InvalidData,
                 "Failed to decode ULEB128 for virtual methods size",
             ))?;
+        offset += bytes_used;
+
+        let static_fields =
+            Self::read_encoded_fields(buffer, &mut offset, static_fields_size as usize)?;
+
+        let instance_fields =
+            Self::read_encoded_fields(buffer, &mut offset, instance_fields_size as usize)?;
+
+        let direct_methods =
+            Self::read_encoded_methods(buffer, &mut offset, direct_methods_size as usize)?;
+
+        let virtual_methods =
+            Self::read_encoded_methods(buffer, &mut offset, virtual_methods_size as usize)?;
 
         Ok(ClassDataItem {
-            static_fields: todo!(),
-            instance_fields: todo!(),
-            direct_methods: todo!(),
-            virtual_methods: todo!(),
+            static_fields,
+            instance_fields,
+            direct_methods,
+            virtual_methods,
         })
     }
 }

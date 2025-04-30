@@ -71,7 +71,7 @@ pub struct HeaderItem {
 }
 
 impl HeaderItem {
-    pub fn parse_from_bytes(buffer: &[u8]) -> std::io::Result<Self> {
+    pub fn try_parse_from_bytes(buffer: &[u8]) -> std::io::Result<Self> {
         let buffer = buffer.get(0..112).ok_or(std::io::Error::new(
             std::io::ErrorKind::InvalidData,
             "Buffer too small to contain Dex header",

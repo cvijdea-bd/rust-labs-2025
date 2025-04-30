@@ -11,7 +11,7 @@ pub struct FieldIdItem {
 }
 
 impl FieldIdItem {
-    pub fn parse_from_bytes(buffer: &[u8]) -> std::io::Result<Self> {
+    pub fn try_parse_from_bytes(buffer: &[u8]) -> std::io::Result<Self> {
         if buffer.len() < 8 {
             return Err(std::io::Error::new(
                 std::io::ErrorKind::UnexpectedEof,
