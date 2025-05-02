@@ -9,6 +9,7 @@ use std::process;
 /// Returns the decoded value and the number of bytes read.
 ///
 /// # Panics
+///
 /// Panics if the ULEB128 encoding is malformed (i.e., exceeds 10 bytes).
 pub fn decode_uleb128(input: &[u8]) -> Option<(u64, usize)> {
     let mut result: u64 = 0;

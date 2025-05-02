@@ -1,7 +1,17 @@
+/// Reads a 32-bit unsigned integer from the given byte slice at `offset` in little-endian order.
+///
+/// # Panics
+///
+/// Panics if the slice is not long enough to read 4 bytes.
 pub fn read_u32_le(data: &[u8], offset: usize) -> u32 {
     u32::from_le_bytes(data[offset..offset + 4].try_into().unwrap())
 }
 
+/// Reads a 16-bit unsigned integer from the given byte slice at `offset` in little-endian order.
+///
+/// # Panics
+///
+/// Panics if the slice is not long enough to read 2 bytes.
 pub fn read_u16_le(data: &[u8], offset: usize) -> u16 {
     u16::from_le_bytes(data[offset..offset + 2].try_into().unwrap())
 }
@@ -10,6 +20,7 @@ pub fn read_u16_le(data: &[u8], offset: usize) -> u16 {
 /// Returns the decoded value and the number of bytes read.
 ///
 /// # Panics
+///
 /// Panics if the ULEB128 encoding is malformed (i.e., exceeds 10 bytes).
 pub fn decode_uleb128(input: &[u8]) -> Option<(u64, usize)> {
     let mut result: u64 = 0;

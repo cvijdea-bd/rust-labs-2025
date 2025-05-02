@@ -1,4 +1,4 @@
-use crate::utils::read_u32_le;
+use crate::utils::{read_u16_le, read_u32_le};
 
 #[allow(unused)]
 pub struct MethodIdItem {
@@ -19,8 +19,8 @@ impl MethodIdItem {
             ));
         }
 
-        let class_idx = u16::from_le_bytes([buffer[0], buffer[1]]);
-        let proto_idx = u16::from_le_bytes([buffer[2], buffer[3]]);
+        let class_idx = read_u16_le(buffer, 0);
+        let proto_idx = read_u16_le(buffer, 2);
         let name_idx = read_u32_le(buffer, 4);
 
         Ok(MethodIdItem {

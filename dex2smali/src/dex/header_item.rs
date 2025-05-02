@@ -72,10 +72,12 @@ pub struct HeaderItem {
 
 impl HeaderItem {
     pub fn try_parse_from_bytes(buffer: &[u8]) -> std::io::Result<Self> {
-        let buffer = buffer.get(0..112).ok_or(std::io::Error::new(
-            std::io::ErrorKind::InvalidData,
-            "Buffer too small to contain Dex header",
-        ))?;
+        if buffer.len() < 112 {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::UnexpectedEof,
+                "Buffer too small to read HeaderItem",
+            ));
+        }
 
         let header = Self {
             magic: buffer[0..8].try_into().unwrap(),

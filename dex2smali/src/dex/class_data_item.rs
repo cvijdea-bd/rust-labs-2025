@@ -24,7 +24,8 @@ impl ClassDataItem {
         let mut encoded_fields = Vec::with_capacity(size);
         let mut prev = 0;
         for _ in 0..size {
-            let encoded_field = EncodedField::try_parse_from_bytes_with_offset(buffer, prev, offset)?;
+            let encoded_field =
+                EncodedField::try_parse_from_bytes_with_offset(buffer, prev, offset)?;
             prev = encoded_field.field_idx;
             encoded_fields.push(encoded_field);
         }
@@ -39,17 +40,18 @@ impl ClassDataItem {
         let mut encoded_methods = Vec::with_capacity(size);
         let mut prev = 0;
         for _ in 0..size {
-            let encoded_method = EncodedMethod::try_parse_from_bytes_with_offset(buffer, prev, offset)?;
+            let encoded_method =
+                EncodedMethod::try_parse_from_bytes_with_offset(buffer, prev, offset)?;
             prev = encoded_method.method_idx;
             encoded_methods.push(encoded_method);
         }
         Ok(encoded_methods)
     }
 
-    pub fn try_try_parse_from_bytes(buffer: &[u8]) -> std::io::Result<Self> {
+    pub fn try_parse_from_bytes_unsized(buffer: &[u8]) -> std::io::Result<Self> {
         let mut offset = 0;
         let (static_fields_size, bytes_used) =
-            decode_uleb128(&buffer).ok_or(std::io::Error::new(
+            decode_uleb128(buffer).ok_or(std::io::Error::new(
                 std::io::ErrorKind::InvalidData,
                 "Failed to decode ULEB128 for static fields size",
             ))?;
