@@ -9,6 +9,7 @@ mod string;
 
 use std::borrow::Cow;
 
+use crate::traits::parse::TryParseFromBytes;
 use crate::utils::read_u32_le;
 use class_def_item::ClassDefItem;
 use field_id_item::FieldIdItem;

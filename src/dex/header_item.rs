@@ -1,4 +1,4 @@
-use crate::utils::read_u32_le;
+use crate::{traits::parse::TryParseFromBytes, utils::read_u32_le};
 
 /// https://source.android.com/docs/core/runtime/dex-format#header-item
 #[allow(unused)]
@@ -70,15 +70,11 @@ pub struct HeaderItem {
     header_offset: u32,
 }
 
-impl HeaderItem {
-    pub fn try_parse_from_bytes(buffer: &[u8]) -> std::io::Result<Self> {
-        if buffer.len() < 112 {
-            return Err(std::io::Error::new(
-                std::io::ErrorKind::UnexpectedEof,
-                "Buffer too small to read HeaderItem",
-            ));
-        }
-        Ok(Self {
+impl TryParseFromBytes for HeaderItem {
+    const SIZE: usize = 112;
+
+    fn parse_from_bytes(buffer: &[u8]) -> Self {
+        Self {
             magic: buffer[0..8].try_into().unwrap(),
             checksum: read_u32_le(buffer, 8),
             signature: buffer[12..32].try_into().unwrap(),
@@ -104,6 +100,6 @@ impl HeaderItem {
             data_off: read_u32_le(buffer, 108),
             containzer_size: 0, // We will ignore this
             header_offset: 0,   // We will ignore this
-        })
+        }
     }
 }

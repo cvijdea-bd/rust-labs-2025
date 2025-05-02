@@ -1,4 +1,4 @@
-use crate::utils::read_u32_le;
+use crate::{traits::parse::TryParseFromBytes, utils::read_u32_le};
 
 #[allow(unused)]
 pub struct ProtoIdItem {
@@ -10,22 +10,18 @@ pub struct ProtoIdItem {
     pub parameters_off: u32,
 }
 
-impl ProtoIdItem {
-    pub fn try_parse_from_bytes(buffer: &[u8]) -> std::io::Result<Self> {
-        if buffer.len() < 12 {
-            return Err(std::io::Error::new(
-                std::io::ErrorKind::InvalidData,
-                "Buffer too short to parse ProtoIdItem",
-            ));
-        }
+impl TryParseFromBytes for ProtoIdItem {
+    const SIZE: usize = 12;
+
+    fn parse_from_bytes(buffer: &[u8]) -> Self {
         let shorty_idx = read_u32_le(buffer, 0);
         let return_type_idx = read_u32_le(buffer, 4);
         let parameters_off = read_u32_le(buffer, 8);
 
-        Ok(ProtoIdItem {
+        ProtoIdItem {
             shorty_idx,
             return_type_idx,
             parameters_off,
-        })
+        }
     }
 }

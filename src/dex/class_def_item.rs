@@ -1,4 +1,4 @@
-use crate::utils::read_u32_le;
+use crate::{traits::parse::TryParseFromBytes, utils::read_u32_le};
 
 /// https://source.android.com/docs/core/runtime/dex-format#class-def-item
 #[allow(unused)]
@@ -22,14 +22,10 @@ pub struct ClassDefItem {
     pub static_values_off: u32,
 }
 
-impl ClassDefItem {
-    pub fn try_parse_from_bytes(buffer: &[u8]) -> std::io::Result<Self> {
-        if buffer.len() < 32 {
-            return Err(std::io::Error::new(
-                std::io::ErrorKind::InvalidData,
-                "Buffer too small to contain ClassDefItem",
-            ));
-        }
+impl TryParseFromBytes for ClassDefItem {
+    const SIZE: usize = 32;
+
+    fn parse_from_bytes(buffer: &[u8]) -> Self {
         let class_idx = read_u32_le(buffer, 0);
         let access_flags = read_u32_le(buffer, 4);
         let superclass_idx = read_u32_le(buffer, 8);
@@ -38,7 +34,7 @@ impl ClassDefItem {
         let annotations_off = read_u32_le(buffer, 20);
         let class_data_off = read_u32_le(buffer, 24);
         let static_values_off = read_u32_le(buffer, 28);
-        Ok(Self {
+        Self {
             class_idx,
             access_flags,
             superclass_idx,
@@ -47,6 +43,6 @@ impl ClassDefItem {
             annotations_off,
             class_data_off,
             static_values_off,
-        })
+        }
     }
 }
