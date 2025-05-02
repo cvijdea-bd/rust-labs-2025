@@ -4,3 +4,7 @@ target/
 *.apk
 out/
 in/
+
+# Added by cargo
+
+/target
