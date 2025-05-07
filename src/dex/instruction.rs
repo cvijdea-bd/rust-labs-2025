@@ -19,12 +19,12 @@ impl Instruction {
         }
         let opcode = buffer[0];
         let (inst, length) = match opcode {
-            0x00 => (Instruction::Nop, 1),
+            0x00 => (Instruction::Nop, 2),
             0x01 => {
                 let (dst, src) = to_nibbles(buffer[1]);
-                (Instruction::Move { dst, src }, 1)
+                (Instruction::Move { dst, src }, 2)
             }
-            0x0A => (Instruction::MoveResult { dst: buffer[1] }, 1),
+            0x0A => (Instruction::MoveResult { dst: buffer[1] }, 2),
             0x1A => {
                 if buffer.len() < 4 {
                     return Err(std::io::Error::new(
@@ -34,7 +34,7 @@ impl Instruction {
                 }
                 let dst = buffer[1];
                 let string_idx = read_u16_le(buffer, 2);
-                (Instruction::ConstString { dst, string_idx }, 2)
+                (Instruction::ConstString { dst, string_idx }, 4)
             }
             unknown => {
                 return Err(std::io::Error::new(
