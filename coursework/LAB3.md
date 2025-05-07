@@ -25,7 +25,7 @@ Instruction example:
 const-string[op] vA[v], string@0000[kind,index]
 // Puts reference to string@0000 (entry #0 in the string table) into vA.
 ```
-The code for this instruction would be `1A08 0000` (in hex). Where:
+The code for this instruction would be `1A08 0000` (in hex), where:
 * `1A` is the opcode for `const-string`
 * `08` is the register number (vA)
 * `0000` is the index of the string in the string table
@@ -44,6 +44,49 @@ You can also [look up](https://source.android.com/docs/core/runtime/instruction-
     * `5` - (max) number of registers used
     * `c` - constant pool index
 
+You can inspect the [Formats table](https://source.android.com/docs/core/runtime/instruction-formats#formats) to see what each individual format means. 
+
+#### Interpreting instructions on the fly
+
+Let's inspect the `3rc` format, which is a bit more complex. By inspecting the Format table, we can see that the format layout is `AA|op BBBB CCCC`, what this essentially means is that an instruction of this format will have:
+* `AA` - An 8-bit something
+* `op` - An opcode, which is always 1 byte
+* `BBBB` - A 16-bit something
+* `CCCC` - A 16-bit something
+
+If we look into the *Syntax* column, we can see some usage of the format:
+* **`op`** {vCCCC .. vNNNN}, meth@BBBB
+* **`op`** {vCCCC .. vNNNN}, site@BBBB
+* **`op`** {vCCCC .. vNNNN}, type@BBBB
+
+*where **`NNNN = CCCC+AA-1`**, that is `A` determines the count 0..255, and `C` determines the first register*
+
+At least for me, the syntax did not clear up the confusion when I was researching the Dalvik bytecode format. It starts to make sense when we look at format usages in the [Summary of bytecode set](https://source.android.com/docs/core/runtime/dalvik-bytecode#instructions). 
+
+The `0x25` opcode, which stands for `filled-new-array/range` uses the `3rc` format. In the *Mnemonic/Syntax* column we can see a similar syntax as above `filled-new-array/range {vCCCC .. vNNNN}, type@BBBB` (Note that `vAA` is silent here, you can take this up with the authors of the documentation). After looking into the *Arguments* column, it starts to make sense a bit:
+* `A`: array size and argument word count (8 bits)
+* `B`: type index (16 bits)
+* `C`: first argument register (16 bits)
+* `N` = A + C - 1
+
+If we connect the dots from everything above, we can interptet the instruction a little bit clearer. The initial `AA|op BBBB CCCC` for the `0x25` opcode can be interpreted as `0x25 vAA vCCCC type@BBBB`, where `vAA` is the array size and argument word count, `vCCCC` is the first argument register, and `type@BBBB` is the type index. We can also compute the register range from `vCCCC` and `AA`, which is `vCCCC .. vNNNN`, where `vNNNN = vCCCC + vAA - 1`.
+
+Now let's try to analyze a practical example from the [Dalvik opcodes](http://pallergabor.uw.hu/androidblog/dalvik_opcodes.html) page:
+|Opcode (dex) |            Opcode name              | Example       |
+|-------------|-------------------------------------|---------------|
+| 0x25        |filled-new-array {parameters},type_id| 2503 0600 1300|
+
+In an actual DEX buffer, we would meet a byte sequence like this:
+`0x25` `0x03` `0x06` `0x00` `0x13` `0x00`
+
+We decipher the byte sequence as follows:
+* `0x25` - opcode for `filled-new-array/range`
+* `0x03` - array size and argument word count (3)
+* `0x0600` - type index (6), which is really `0x0006` but in little-endian format
+* `0x1300` - first argument register (19), which is really `0x0013` but in little-endian format, `0x0013` = `19` in decimal
+
+The human readable interpretation becomes: `filled-new-array/range {v19..v21}, [B // type@0006`
+
 #### Implementing the Disassembler
 We'll extend our DEX parser to include bytecode disassembly. Here's the structure we'll add:
 ```
@@ -57,6 +100,7 @@ dex2smali
 ```
 
 1. Parsing Code Items
+
 First, let's implement the `CodeItem` struct that contains the actual bytecode for a method:
 ```rust
 // src/dex/code_item.rs
@@ -129,6 +173,7 @@ impl CodeItem {
 ```
 
 2. Instruction Representation
+
 Next, we'll create an Instruction enum that can represent all Dalvik instructions:
 ```rust
 // src/dex/instruction.rs
