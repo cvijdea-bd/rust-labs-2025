@@ -1,4 +1,4 @@
-# Lab 01 - Android DEX bytecode
+# LAB 01 - Android DEX bytecode
 
 Our project is to write an Android bytecode decompiler in Rust.  
 

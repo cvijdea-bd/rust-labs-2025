@@ -1,4 +1,4 @@
-# Lab 03 - Dalvik Bytecode and Instruction Formats
+# LAB 03 - Dalvik Bytecode and Instruction Formats
 Now that we've built a parser for the DEX file format and can extract class definitions, methods, and strings, it's time to dive into the actual bytecode instructions that make up Android applications. In this lab, we'll:
 1. Understand Dalvik bytecode instruction formats
 2. Implement a disassembler for Dalvik instructions
@@ -10,7 +10,7 @@ Dalvik bytecode is a register-based instruction set (unlike Java bytecode which 
 2. Optional operands (registers, literals, method/field references, etc.)
 3. Various size operands (16-bit, 32-bit, etc.)
 
-#### Instruction Format Notation
+### Instruction Format Notation
 Dalvik instructions follow a consistent naming pattern that encodes information about the instruction:
 ```
 op vA, vB, kind@C
@@ -46,7 +46,7 @@ You can also [look up](https://source.android.com/docs/core/runtime/instruction-
 
 You can inspect the [Formats table](https://source.android.com/docs/core/runtime/instruction-formats#formats) to see what each individual format means. 
 
-#### Interpreting instructions on the fly
+### Interpreting instructions on the fly
 
 Let's inspect the `3rc` format, which is a bit more complex. By inspecting the Format table, we can see that the format layout is `AA|op BBBB CCCC`, what this essentially means is that an instruction of this format will have:
 * `AA` - An 8-bit something
@@ -87,7 +87,9 @@ We decipher the byte sequence as follows:
 
 The human readable interpretation becomes: `filled-new-array/range {v19..v21}, [B // type@0006`
 
-#### Implementing the Disassembler
+## Implementing the Disassembler
+
+### Files
 We'll extend our DEX parser to include bytecode disassembly. Here's the structure we'll add:
 ```
 dex2smali
@@ -99,8 +101,7 @@ dex2smali
 │   │   └── ... (existing files)
 ```
 
-1. Parsing Code Items
-
+### Parsing Code Items
 First, let's implement the `CodeItem` struct that contains the actual bytecode for a method:
 ```rust
 // src/dex/code_item.rs
@@ -172,8 +173,7 @@ impl CodeItem {
 }
 ```
 
-2. Instruction Representation
-
+### Instruction Representation
 Next, we'll create an Instruction enum that can represent all Dalvik instructions:
 ```rust
 // src/dex/instruction.rs
@@ -227,8 +227,8 @@ impl Instruction {
 }
 ```
 
-### Assignment
-1. Implement Bytecode Disassembly
+## Assignment
+### Implement Bytecode Disassembly
 
 Extend the Instruction enum and parsing logic to support at least the following instruction formats:
 * 10x (no operands) - e.g., `return-void`
@@ -253,7 +253,7 @@ Example output:
 
 Combine this output with the one from the previous lab to create a better class/method overview.
 
-### Resources
+## Resources
 [Dalvik Bytecode Reference](https://source.android.com/docs/core/runtime/dalvik-bytecode)
 
 [Instruction Formats](https://source.android.com/docs/core/runtime/instruction-formats)
