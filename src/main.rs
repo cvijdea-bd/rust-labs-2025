@@ -1,4 +1,4 @@
-use dex::{Dex, class_data_item::ClassDataItem, encoded::EncodedField};
+use dex::{class_data_item::ClassDataItem, code_item::CodeItem, encoded::EncodedField, Dex};
 
 mod dex;
 mod traits;
@@ -51,6 +51,15 @@ fn main() {
                 println!("  Direct Methods:");
                 for encoded_method in &class_data_item.direct_methods {
                     print_method(&dex, encoded_method);
+
+                    let code_item = CodeItem::try_parse_from_bytes_unsized(
+                        &buffer[encoded_method.code_off as usize..],
+                    )
+                    .unwrap();
+
+                    for insns in &code_item.insns {
+                        println!("            {:?}", insns);
+                    }
                 }
                 println!("  Virtual Methods:");
                 for encoded_method in &class_data_item.virtual_methods {
@@ -61,5 +70,7 @@ fn main() {
                 eprintln!("Failed to parse ClassDataItem for {}: {}", class_name, e);
             }
         }
+
+        break; // TODO: just for debugging, remove
     }
 }

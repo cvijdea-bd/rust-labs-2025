@@ -48,7 +48,16 @@ impl CodeItem {
         let mut total_size = 0;
         while total_size < insns_bytes {
             let offset = 16 + total_size;
-            let (insn, length) = Instruction::decode(&buffer[offset..])?;
+            let (insn, length) = match Instruction::decode(&buffer[offset..]) {
+                Ok((insn, length)) => (insn, length),
+                Err(e) => {
+                    println!(
+                        "!!!!!!!! Failed to decode instruction at offset {}: {}",
+                        offset, e
+                    );
+                    break;
+                }
+            };
             insns.push(insn);
             total_size += length;
         }
