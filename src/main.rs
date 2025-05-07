@@ -25,8 +25,8 @@ fn print_method(dex: &Dex, method: &dex::encoded::EncodedMethod) {
     let method_name = &dex.strings[method_id.name_idx as usize];
 
     println!(
-        "      Method: {} {} {}",
-        method_class, method_proto, method_name
+        "      Method ({}): {} {} {}",
+        method.code_off, method_class, method_proto, method_name
     );
 }
 
@@ -34,7 +34,7 @@ fn main() {
     let path = std::env::args().nth(1).expect("Please provide a file path");
     let buffer = std::fs::read(&path).expect("Failed to read file");
     let dex = Dex::try_parse_from_bytes(&buffer).expect("Failed to parse DEX file");
-
+    println!("Data: {}..{}", dex.header_item.data_off, dex.header_item.data_off + dex.header_item.data_size);
     for class in &dex.class_defs {
         let class_name = &dex.types[class.class_idx as usize];
         let class_data_offset = class.class_data_off as usize;

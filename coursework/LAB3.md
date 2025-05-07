@@ -32,11 +32,11 @@ The code for this instruction would be `1A08 0000` (in hex), where:
 
 You can also [look up](https://source.android.com/docs/core/runtime/instruction-formats) the instruction format for each individual opcode. The instruction format is a 3-4 character string: `12x`, `21c`, etc. that describes the instruction's structure:
 * `12x` - **`op`** vA, vB
-    * `1` - instruction length is 1 byte
+    * `1` - instruction length is 1 word
     * `2` - number of registers used
     * `x` - no additional data
 * `22s` - **`op`** vA, vB, #+CCCC
-    * `2` - instruction length is 2 bytes
+    * `2` - instruction length is 2 words
     * `2` - number of registers used
     * `s` - immediate signed short
 * `35c` - **`[A=5]` `op`** {vC, vD, vE, vF, vG} ... **`[A=1]` `op`** {vC} `kind`@BBBB; **`[A=0]` `op`** {}, `kind`@BBBB
@@ -50,7 +50,7 @@ You can inspect the [Formats table](https://source.android.com/docs/core/runtime
 
 Let's inspect the `3rc` format, which is a bit more complex. By inspecting the Format table, we can see that the format layout is `AA|op BBBB CCCC`, what this essentially means is that an instruction of this format will have:
 * `AA` - An 8-bit something
-* `op` - An opcode, which is always 1 byte
+* `op` - An opcode, which is always 1 word
 * `BBBB` - A 16-bit something
 * `CCCC` - A 16-bit something
 

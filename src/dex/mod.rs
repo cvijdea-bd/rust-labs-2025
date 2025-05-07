@@ -21,6 +21,7 @@ use proto_id_item::ProtoIdItem;
 
 #[allow(unused)]
 pub struct Dex<'a> {
+    pub header_item: HeaderItem,
     pub strings: Vec<Cow<'a, str>>,
     pub types: Vec<Cow<'a, str>>,
     pub proto_ids: Vec<ProtoIdItem>,
@@ -139,6 +140,7 @@ impl<'a> Dex<'a> {
         let class_defs = Self::read_class_def_items(buffer, &header_item);
 
         Ok(Self {
+            header_item,
             strings,
             types,
             proto_ids,
