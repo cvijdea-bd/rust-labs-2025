@@ -70,12 +70,13 @@ impl Instruction {
                 (Instruction::SgetObject { dst, field_idx }, 4)
             }
             0x70 => {
+                // "35c" format
                 let ag = buffer[1];
                 let bbbb = &buffer[2..=3];
                 let dc = buffer[4];
                 let fe = buffer[5];
 
-                let (g, a) = to_nibbles(ag); // A|G
+                let (g, a) = to_nibbles(ag); // A|G - hi|lo
                 let (c, d) = to_nibbles(dc);
                 let (e, f) = to_nibbles(fe);
                 let b = read_u16_le(bbbb, 0);
@@ -146,6 +147,7 @@ mod tests {
 
     #[test]
     fn test_invoke_direct() {
+        // example from http://pallergabor.uw.hu/androidblog/dalvik_opcodes.html
         let buffer = [0x70, 0x10, 0x08, 0x00, 0x01, 0x00];
         let (inst, length) = super::Instruction::decode(&buffer).unwrap();
         assert_eq!(
