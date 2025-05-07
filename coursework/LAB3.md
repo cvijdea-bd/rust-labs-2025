@@ -237,6 +237,8 @@ Extend the Instruction enum and parsing logic to support at least the following 
 * 21c (1 register, 16-bit constant pool index) - e.g., `const-string vAA, string@BBBB`
 * 35c (3 registers, 16-bit constant pool index) - e.g., `invoke-virtual {vC, vD, vE}, method@BBBB`
 
+>⚠️ Note that if you choose to support only a subset of opcodes, you will still need to handle the size for every opcode, to be able jump over the instruction bytes.
+
 For each instruction, print:
 1. The instruction name (from opcode)
 2. Register operands
@@ -256,6 +258,7 @@ Combine this output with the one from the previous lab to create a better class/
 
 [Instruction Formats](https://source.android.com/docs/core/runtime/instruction-formats)
 
-[Smali Documentation](https://github.com/JesusFreke/smali/wiki) (useful for understanding disassembled output)
-
 [Dalvik Opcodes](http://pallergabor.uw.hu/androidblog/dalvik_opcodes.html)
+
+
+[Smali Documentation](https://github.com/JesusFreke/smali/wiki) (useful for understanding disassembled output)
