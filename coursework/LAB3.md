@@ -184,24 +184,18 @@ pub enum Instruction {
     Nop,
     Move { dst: u8, src: u8 },
     MoveResult { dst: u8 },
-    Const4 { dst: u8, value: i8 },
-    Const16 { dst: u8, value: i16 },
     ConstString { dst: u8, string_idx: u16 },
-    InvokeVirtual { method_idx: u16, args: Vec<u8> },
-    ReturnVoid,
-    Return { reg: u8 },
     // ... more instructions
 }
 
 impl Instruction {
-    pub fn decode(buffer: &[u8], offset: usize) -> std::io::Result<(Self, usize)> {
-        if buffer.len() < offset + 2 {
+    pub fn decode(buffer: &[u8]) -> std::io::Result<(Self, usize)> {
+        if buffer.len() < 2 {
             return Err(std::io::Error::new(
                 std::io::ErrorKind::UnexpectedEof,
                 "Buffer too small for instruction",
             ));
         }
-        let buffer = &buffer[offset..];
         let opcode = buffer[0];
         let (inst, length) = match opcode {
             0x00 => (Instruction::Nop, 1),
