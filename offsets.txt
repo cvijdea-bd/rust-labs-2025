@@ -1,4 +1,0 @@
-greet 1128
-displayInfo 1292
-getName 1212
-resetName 1492

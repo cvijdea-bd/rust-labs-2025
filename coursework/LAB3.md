@@ -200,7 +200,7 @@ impl Instruction {
         let (inst, length) = match opcode {
             0x00 => (Instruction::Nop, 1),
             0x01 => {
-                let (dst, src) = to_nibbles(buffer[1]);
+                let (dst, src) = to_nibbles(buffer[ 1]);
                 (Instruction::Move { dst, src }, 1)
             }
             0x0A => (Instruction::MoveResult { dst: buffer[1] }, 1),

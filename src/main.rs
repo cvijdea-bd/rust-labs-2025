@@ -25,8 +25,8 @@ fn print_method(dex: &Dex, method: &dex::encoded::EncodedMethod) {
     let method_name = &dex.strings[method_id.name_idx as usize];
 
     println!(
-        "      Method ({}): {} {} {}",
-        method.code_off, method_class, method_proto, method_name
+        "      Method: {} {} {}",
+        method_class, method_proto, method_name
     );
 }
 
