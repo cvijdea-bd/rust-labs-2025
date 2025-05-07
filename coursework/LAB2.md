@@ -1,4 +1,4 @@
-## LAB 2
+## LAB 2 - Parsing DEX files
 
 ### Project structure
 Instead of dumping the entire code in a single `main.rs` file, we will split our logic into multiple files. This is what we came up with:

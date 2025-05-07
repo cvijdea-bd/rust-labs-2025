@@ -47,3 +47,8 @@ pub fn decode_uleb128(input: &[u8]) -> Option<(u64, usize)> {
 
     None
 }
+
+/// Converts a byte to a tuple of two nibbles (4-bit values).
+pub const fn to_nibbles(byte: u8) -> (u8, u8) {
+    (byte >> 4, byte & 0x0F)
+}

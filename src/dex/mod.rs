@@ -1,8 +1,10 @@
 pub mod class_data_item;
 pub mod class_def_item;
+pub mod code_item;
 pub mod encoded;
 pub mod field_id_item;
 pub mod header_item;
+mod instruction;
 pub mod method_id_item;
 pub mod proto_id_item;
 mod string;

@@ -4,3 +4,4 @@ We will write a parser for the Android Dalvik EXecutable (DEX) file format, and 
 ## Coursework
 - [Course 1](./coursework/LAB1.md) - Dalvik Exeutable Format (DEX)
 - [Course 2](./coursework/LAB2.md) - Parsing DEX files
+- [Course 3](./coursework/LAB3.md) - Instruction Formats
