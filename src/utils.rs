@@ -1,3 +1,12 @@
+/// Reads a 64-bit unsigned integer from the given byte slice at `offset` in little-endian order.
+///
+/// # Panics
+///
+/// Panics if the slice is not long enough to read 8 bytes.
+pub fn read_u64_le(data: &[u8], offset: usize) -> u64 {
+    u64::from_le_bytes(data[offset..offset + 8].try_into().unwrap())
+}
+
 /// Reads a 32-bit unsigned integer from the given byte slice at `offset` in little-endian order.
 ///
 /// # Panics

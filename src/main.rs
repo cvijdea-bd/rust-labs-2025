@@ -4,6 +4,7 @@ use dex::{class_data_item::ClassDataItem, code_item::CodeItem, encoded::EncodedF
 use std::io::Write;
 
 mod dex;
+mod errors;
 mod traits;
 mod utils;
 

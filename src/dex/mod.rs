@@ -11,6 +11,7 @@ mod string;
 
 use std::borrow::Cow;
 
+use crate::errors::DexParseError;
 use crate::traits::parse::TryParseFromBytes;
 use crate::utils::read_u32_le;
 use class_def_item::ClassDefItem;
@@ -129,7 +130,7 @@ impl<'a> Dex<'a> {
         class_defs
     }
 
-    pub fn try_parse_from_bytes(buffer: &'a [u8]) -> std::io::Result<Self> {
+    pub fn try_parse_from_bytes(buffer: &'a [u8]) -> Result<Self, DexParseError> {
         let header_item = HeaderItem::try_parse_from_bytes(buffer)?;
 
         let strings = Self::read_strings(buffer, &header_item);
