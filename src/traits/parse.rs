@@ -1,7 +1,7 @@
 use crate::errors::DexParseError;
 
 pub trait TryParseFromBytes {
-    const NAME: &str;
+    const NAME: &'static str;
     const SIZE: usize;
 
     /// Attempts to parse a struct from a byte slice. If the slice is too small, it returns an error.

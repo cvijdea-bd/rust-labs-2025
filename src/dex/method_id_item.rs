@@ -14,7 +14,7 @@ pub struct MethodIdItem {
 }
 
 impl TryParseFromBytes for MethodIdItem {
-    const NAME: &str = "method_id_item";
+    const NAME: &'static str = "method_id_item";
     const SIZE: usize = 8;
 
     fn parse_from_bytes(buffer: &[u8]) -> Self {

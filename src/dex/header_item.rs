@@ -71,7 +71,7 @@ pub struct HeaderItem {
 }
 
 impl TryParseFromBytes for HeaderItem {
-    const NAME: &str = "header_item";
+    const NAME: &'static str = "header_item";
     const SIZE: usize = 112;
 
     fn parse_from_bytes(buffer: &[u8]) -> Self {

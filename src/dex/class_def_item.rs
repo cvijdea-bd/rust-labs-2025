@@ -23,7 +23,7 @@ pub struct ClassDefItem {
 }
 
 impl TryParseFromBytes for ClassDefItem {
-    const NAME: &str = "class_def_item";
+    const NAME: &'static str = "class_def_item";
     const SIZE: usize = 32;
 
     fn parse_from_bytes(buffer: &[u8]) -> Self {

@@ -11,7 +11,7 @@ pub struct ProtoIdItem {
 }
 
 impl TryParseFromBytes for ProtoIdItem {
-    const NAME: &str = "proto_id_item";
+    const NAME: &'static str = "proto_id_item";
     const SIZE: usize = 12;
 
     fn parse_from_bytes(buffer: &[u8]) -> Self {

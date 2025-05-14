@@ -14,7 +14,7 @@ pub struct FieldIdItem {
 }
 
 impl TryParseFromBytes for FieldIdItem {
-    const NAME: &str = "field_id_item";
+    const NAME: &'static str = "field_id_item";
     const SIZE: usize = 8;
 
     fn parse_from_bytes(buffer: &[u8]) -> Self {

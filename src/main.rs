@@ -100,7 +100,7 @@ fn main() {
             println!("");
 
             for insns in &code_item.insns {
-                writeln!(class_out_file, "            {:?}", insns).unwrap();
+                writeln!(class_out_file, "    {:?}", insns).unwrap();
             }
 
             writeln!(class_out_file, ".end method").unwrap();
