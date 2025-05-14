@@ -1,4 +1,5 @@
 target/
+out-smali/
 *.class
 *.dex
 *.apk
