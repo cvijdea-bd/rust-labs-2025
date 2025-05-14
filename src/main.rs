@@ -40,8 +40,8 @@ fn main() {
     let dex = Dex::try_parse_from_bytes(&buffer).expect("Failed to parse DEX file");
 
     let out_path = Path::new("out-smali");
-    std::fs::remove_dir_all(out_path);
-    std::fs::create_dir(out_path);
+    std::fs::remove_dir_all(out_path).unwrap();
+    std::fs::create_dir(out_path).unwrap();
 
     for class in &dex.class_defs {
         let class_name = &dex.types[class.class_idx as usize];
@@ -61,7 +61,7 @@ fn main() {
         let class_out_path =
             out_path.join(format!("{}.smali", class_name_stripped.replace('/', "_")));
         let mut class_out_file = std::fs::File::create(class_out_path).unwrap();
-        writeln!(class_out_file, ".class {}", class_name);
+        writeln!(class_out_file, ".class {}", class_name).unwrap();
         writeln!(class_out_file, ".super {}", superclass_name).unwrap();
 
         let fields = class_data_item
@@ -77,7 +77,7 @@ fn main() {
             let field_type = &dex.types[field_id.type_idx as usize];
             let field_name = &dex.strings[field_id.name_idx as usize];
 
-            writeln!(class_out_file, "").unwrap();
+            writeln!(class_out_file).unwrap();
             writeln!(class_out_file, ".field {field_name}:{field_type}").unwrap();
         }
         for method in methods {
@@ -87,7 +87,7 @@ fn main() {
             let return_type = &dex.types[proto_id.return_type_idx as usize];
             let method_name = &dex.strings[method_id.name_idx as usize];
 
-            writeln!(class_out_file, "").unwrap();
+            writeln!(class_out_file).unwrap();
             writeln!(class_out_file, ".method {method_name}(){return_type}").unwrap();
 
             println!(
@@ -97,7 +97,7 @@ fn main() {
             let code_item =
                 CodeItem::try_parse_from_bytes_unsized(&buffer[method.code_off as usize..])
                     .unwrap();
-            println!("");
+            println!();
 
             for insns in &code_item.insns {
                 writeln!(class_out_file, "    {:?}", insns).unwrap();
