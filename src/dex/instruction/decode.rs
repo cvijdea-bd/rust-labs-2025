@@ -182,8 +182,8 @@ impl Instruction {
             0x24 => {
                 let (g, a) = to_nibbles(buffer[1]);
                 let type_idx = read_u16_le(buffer, 2);
-                let (e, f) = to_nibbles(buffer[4]);
-                let (c, d) = to_nibbles(buffer[5]);
+                let (c, d) = to_nibbles(buffer[4]);
+                let (e, f) = to_nibbles(buffer[5]);
                 Instruction::FilledNewArray {
                     type_idx,
                     args: [c, d, e, f, g],
@@ -264,12 +264,12 @@ impl Instruction {
                 let offset = read_u16_le(buffer, 2) as i16;
 
                 match opcode {
-                    0x38 => Instruction::IfEqz { value, offset },
-                    0x39 => Instruction::IfNez { value, offset },
-                    0x3A => Instruction::IfLtz { value, offset },
-                    0x3B => Instruction::IfGez { value, offset },
-                    0x3C => Instruction::IfGtz { value, offset },
-                    0x3D => Instruction::IfLez { value, offset },
+                    0x38 => Instruction::IfEqz { a: value, offset },
+                    0x39 => Instruction::IfNez { a: value, offset },
+                    0x3A => Instruction::IfLtz { a: value, offset },
+                    0x3B => Instruction::IfGez { a: value, offset },
+                    0x3C => Instruction::IfGtz { a: value, offset },
+                    0x3D => Instruction::IfLez { a: value, offset },
                     _ => unreachable!(),
                 }
             }
@@ -494,8 +494,8 @@ impl Instruction {
             0x6E..=0x72 => {
                 let (g, arg_cnt) = to_nibbles(buffer[1]);
                 let method_idx = read_u16_le(buffer, 2);
-                let (e, f) = to_nibbles(buffer[4]);
-                let (c, d) = to_nibbles(buffer[5]);
+                let (c, d) = to_nibbles(buffer[4]);
+                let (e, f) = to_nibbles(buffer[5]);
                 let args = [c, d, e, f, g];
                 match opcode {
                     0x6E => Instruction::InvokeVirtual {
@@ -601,7 +601,7 @@ impl Instruction {
                     0x97 => Instruction::XorInt { dst, src_a, src_b },
                     0x98 => Instruction::ShlInt { dst, src_a, src_b },
                     0x99 => Instruction::ShrInt { dst, src_a, src_b },
-                    0x9A => Instruction::UshrInt { dst, src_a, src_b },
+                    0x9A => Instruction::UShrInt { dst, src_a, src_b },
                     0x9B => Instruction::AddLong { dst, src_a, src_b },
                     0x9C => Instruction::SubLong { dst, src_a, src_b },
                     0x9D => Instruction::MulLong { dst, src_a, src_b },
@@ -612,7 +612,7 @@ impl Instruction {
                     0xA2 => Instruction::XorLong { dst, src_a, src_b },
                     0xA3 => Instruction::ShlLong { dst, src_a, src_b },
                     0xA4 => Instruction::ShrLong { dst, src_a, src_b },
-                    0xA5 => Instruction::UshrLong { dst, src_a, src_b },
+                    0xA5 => Instruction::UShrLong { dst, src_a, src_b },
                     0xA6 => Instruction::AddFloat { dst, src_a, src_b },
                     0xA7 => Instruction::SubFloat { dst, src_a, src_b },
                     0xA8 => Instruction::MulFloat { dst, src_a, src_b },
@@ -639,7 +639,7 @@ impl Instruction {
                     0xB7 => Instruction::XorInt2Addr { dst, src },
                     0xB8 => Instruction::ShlInt2Addr { dst, src },
                     0xB9 => Instruction::ShrInt2Addr { dst, src },
-                    0xBA => Instruction::UshrInt2Addr { dst, src },
+                    0xBA => Instruction::UShrInt2Addr { dst, src },
                     0xBB => Instruction::AddLong2Addr { dst, src },
                     0xBC => Instruction::SubLong2Addr { dst, src },
                     0xBD => Instruction::MulLong2Addr { dst, src },
@@ -650,7 +650,7 @@ impl Instruction {
                     0xC2 => Instruction::XorLong2Addr { dst, src },
                     0xC3 => Instruction::ShlLong2Addr { dst, src },
                     0xC4 => Instruction::ShrLong2Addr { dst, src },
-                    0xC5 => Instruction::UshrLong2Addr { dst, src },
+                    0xC5 => Instruction::UShrLong2Addr { dst, src },
                     0xC6 => Instruction::AddFloat2Addr { dst, src },
                     0xC7 => Instruction::SubFloat2Addr { dst, src },
                     0xC8 => Instruction::MulFloat2Addr { dst, src },
@@ -694,15 +694,15 @@ impl Instruction {
                     0xDF => Instruction::XorIntLit8 { dst, src, value },
                     0xE0 => Instruction::ShlIntLit8 { dst, src, value },
                     0xE1 => Instruction::ShrIntLit8 { dst, src, value },
-                    0xE2 => Instruction::UshrIntLit8 { dst, src, value },
+                    0xE2 => Instruction::UShrIntLit8 { dst, src, value },
                     _ => unreachable!(),
                 }
             }
             0xFA => {
                 let (g, arg_cnt) = to_nibbles(buffer[1]);
                 let method_idx = read_u16_le(buffer, 2);
-                let (e, f) = to_nibbles(buffer[4]);
-                let (c, d) = to_nibbles(buffer[5]);
+                let (c, d) = to_nibbles(buffer[4]);
+                let (e, f) = to_nibbles(buffer[5]);
                 let proto_idx = read_u16_le(buffer, 6);
                 let args = [c, d, e, f, g];
                 Instruction::InvokePolymorphic {
@@ -727,8 +727,8 @@ impl Instruction {
             0xFC => {
                 let (g, arg_cnt) = to_nibbles(buffer[1]);
                 let call_site_idx = read_u16_le(buffer, 2);
-                let (e, f) = to_nibbles(buffer[4]);
-                let (c, d) = to_nibbles(buffer[5]);
+                let (c, d) = to_nibbles(buffer[4]);
+                let (e, f) = to_nibbles(buffer[5]);
                 let args = [c, d, e, f, g];
                 Instruction::InvokeCustom {
                     call_site_idx,

@@ -23,3 +23,21 @@ pub enum DexParseError {
         actual: usize,
     },
 }
+
+#[derive(Debug, Error)]
+pub enum TableIdxError {
+    #[error("Invalid strings idx: {0}")]
+    String(usize),
+    #[error("Invalid types idx: {0}")]
+    Type(usize),
+    #[error("Invalid field id idx: {0}")]
+    FieldId(usize),
+    #[error("Invalid method id idx: {0}")]
+    MethodId(usize),
+    #[error("Invalid proto id idx: {0}")]
+    ProtoId(usize),
+    #[error("Invalid call site item idx: {0}")]
+    CallSite(usize),
+    #[error("Invalid method handle idx: {0}")]
+    MethodHandle(usize),
+}

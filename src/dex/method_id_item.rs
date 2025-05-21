@@ -1,7 +1,10 @@
 use crate::{
+    errors::TableIdxError,
     traits::parse::TryParseFromBytes,
     utils::{read_u16_le, read_u32_le},
 };
+
+use super::Dex;
 
 #[allow(unused)]
 pub struct MethodIdItem {
@@ -11,6 +14,27 @@ pub struct MethodIdItem {
     pub proto_idx: u16,
     /// index into the `string_ids` list for the name of this method. The string must conform to the syntax for MemberName.
     pub name_idx: u32,
+}
+
+impl MethodIdItem {
+    pub fn to_human_readable(&self, dex: &Dex) -> Result<String, TableIdxError> {
+        let class_name = dex
+            .types
+            .get(self.class_idx as usize)
+            .ok_or(TableIdxError::Type(self.class_idx as usize))?;
+        let proto = dex
+            .proto_ids
+            .get(self.proto_idx as usize)
+            .ok_or(TableIdxError::ProtoId(self.proto_idx as usize))?;
+        let method_name = dex
+            .strings
+            .get(self.name_idx as usize)
+            .ok_or(TableIdxError::String(self.name_idx as usize))?;
+        Ok(format!(
+            "{class_name}->{method_name}{}",
+            proto.to_human_readable(dex)?
+        ))
+    }
 }
 
 impl TryParseFromBytes for MethodIdItem {

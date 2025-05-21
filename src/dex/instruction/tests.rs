@@ -517,79 +517,37 @@ fn test_if_le() {
 #[test]
 fn test_if_eqz() {
     let buffer = [0x38, 0x02, 0x19, 0x00];
-    assert_helper(
-        &buffer,
-        Instruction::IfEqz {
-            value: 2,
-            offset: 25,
-        },
-        4,
-    );
+    assert_helper(&buffer, Instruction::IfEqz { a: 2, offset: 25 }, 4);
 }
 
 #[test]
 fn test_if_nez() {
     let buffer = [0x39, 0x02, 0x12, 0x00];
-    assert_helper(
-        &buffer,
-        Instruction::IfNez {
-            value: 2,
-            offset: 18,
-        },
-        4,
-    );
+    assert_helper(&buffer, Instruction::IfNez { a: 2, offset: 18 }, 4);
 }
 
 #[test]
 fn test_if_ltz() {
     let buffer = [0x3A, 0x00, 0x16, 0x00];
-    assert_helper(
-        &buffer,
-        Instruction::IfLtz {
-            value: 0,
-            offset: 22,
-        },
-        4,
-    );
+    assert_helper(&buffer, Instruction::IfLtz { a: 0, offset: 22 }, 4);
 }
 
 #[test]
 fn test_if_gez() {
     let buffer = [0x3B, 0x00, 0x16, 0x00];
-    assert_helper(
-        &buffer,
-        Instruction::IfGez {
-            value: 0,
-            offset: 22,
-        },
-        4,
-    );
+    assert_helper(&buffer, Instruction::IfGez { a: 0, offset: 22 }, 4);
 }
 
 #[test]
 fn test_if_gtz() {
     let buffer = [0x3C, 0x00, 0x1D, 0x00];
-    assert_helper(
-        &buffer,
-        Instruction::IfGtz {
-            value: 0,
-            offset: 29,
-        },
-        4,
-    );
+    assert_helper(&buffer, Instruction::IfGtz { a: 0, offset: 29 }, 4);
 }
 
 #[test]
 fn test_if_lez() {
     let buffer = [0x3D, 0x00, 0x1D, 0x00];
-    assert_helper(
-        &buffer,
-        Instruction::IfLez {
-            value: 0,
-            offset: 29,
-        },
-        4,
-    );
+    assert_helper(&buffer, Instruction::IfLez { a: 0, offset: 29 }, 4);
 }
 
 #[test]
@@ -1173,7 +1131,7 @@ fn test_invoke_virtual() {
         &buffer,
         Instruction::InvokeVirtual {
             method_idx: 6,
-            args: [0, 1, 2, 3, 4],
+            args: [2, 3, 0, 1, 4],
             arg_cnt: 5,
         },
         6,
@@ -1187,7 +1145,7 @@ fn test_invoke_super() {
         &buffer,
         Instruction::InvokeSuper {
             method_idx: 422,
-            args: [0, 1, 2, 3, 5],
+            args: [2, 3, 0, 1, 5],
             arg_cnt: 4,
         },
         6,
@@ -1201,7 +1159,7 @@ fn test_invoke_direct() {
         &buffer,
         Instruction::InvokeDirect {
             method_idx: 8,
-            args: [0, 1, 2, 3, 5],
+            args: [2, 3, 0, 1, 5],
             arg_cnt: 4,
         },
         6,
@@ -1215,7 +1173,7 @@ fn test_invoke_static() {
         &buffer,
         Instruction::InvokeStatic {
             method_idx: 52,
-            args: [0, 1, 2, 3, 5],
+            args: [2, 3, 0, 1, 5],
             arg_cnt: 4,
         },
         6,
@@ -1229,7 +1187,7 @@ fn test_invoke_interface() {
         &buffer,
         Instruction::InvokeInterface {
             method_idx: 545,
-            args: [0, 1, 2, 3, 5],
+            args: [2, 3, 0, 1, 5],
             arg_cnt: 4,
         },
         6,
@@ -1577,7 +1535,7 @@ fn test_ushr_int() {
     let buffer = [0x9A, 0x02, 0x00, 0x01];
     assert_helper(
         &buffer,
-        Instruction::UshrInt {
+        Instruction::UShrInt {
             dst: 2,
             src_a: 0,
             src_b: 1,
@@ -1731,7 +1689,7 @@ fn test_ushr_long() {
     let buffer = [0xA5, 0x02, 0x00, 0x04];
     assert_helper(
         &buffer,
-        Instruction::UshrLong {
+        Instruction::UShrLong {
             dst: 2,
             src_a: 0,
             src_b: 4,
@@ -1943,7 +1901,7 @@ fn test_shr_int_2addr() {
 #[test]
 fn test_ushr_int_2addr() {
     let buffer = [0xBA, 0x10];
-    assert_helper(&buffer, Instruction::UshrInt2Addr { dst: 0, src: 1 }, 2);
+    assert_helper(&buffer, Instruction::UShrInt2Addr { dst: 0, src: 1 }, 2);
 }
 
 #[test]
@@ -2009,7 +1967,7 @@ fn test_shr_long_2addr() {
 #[test]
 fn test_ushr_long_2addr() {
     let buffer = [0xC5, 0x20];
-    assert_helper(&buffer, Instruction::UshrLong2Addr { dst: 0, src: 2 }, 2);
+    assert_helper(&buffer, Instruction::UShrLong2Addr { dst: 0, src: 2 }, 2);
 }
 
 #[test]
@@ -2329,7 +2287,7 @@ fn test_ushr_int_lit8() {
     let buffer = [0xE2, 0x01, 0x00, 0x01];
     assert_helper(
         &buffer,
-        Instruction::UshrIntLit8 {
+        Instruction::UShrIntLit8 {
             dst: 1,
             src: 0,
             value: 1,
@@ -2375,7 +2333,7 @@ fn test_invoke_custom() {
         &buffer,
         Instruction::InvokeCustom {
             call_site_idx: 0x221,
-            args: [0, 1, 2, 3, 5],
+            args: [2, 3, 0, 1, 5],
             arg_cnt: 4,
         },
         6,

@@ -1,5 +1,8 @@
 mod decode;
+mod human_readable;
+mod keyword;
 mod size;
+
 #[cfg(test)]
 mod tests;
 
@@ -235,27 +238,27 @@ pub enum Instruction {
         offset: i16,
     },
     IfEqz {
-        value: u8,
+        a: u8,
         offset: i16,
     },
     IfNez {
-        value: u8,
+        a: u8,
         offset: i16,
     },
     IfLtz {
-        value: u8,
+        a: u8,
         offset: i16,
     },
     IfGez {
-        value: u8,
+        a: u8,
         offset: i16,
     },
     IfGtz {
-        value: u8,
+        a: u8,
         offset: i16,
     },
     IfLez {
-        value: u8,
+        a: u8,
         offset: i16,
     },
 
@@ -650,7 +653,7 @@ pub enum Instruction {
         src_a: u8,
         src_b: u8,
     },
-    UshrInt {
+    UShrInt {
         dst: u8,
         src_a: u8,
         src_b: u8,
@@ -705,7 +708,7 @@ pub enum Instruction {
         src_a: u8,
         src_b: u8,
     },
-    UshrLong {
+    UShrLong {
         dst: u8,
         src_a: u8,
         src_b: u8,
@@ -802,7 +805,7 @@ pub enum Instruction {
         dst: u8,
         src: u8,
     },
-    UshrInt2Addr {
+    UShrInt2Addr {
         dst: u8,
         src: u8,
     },
@@ -846,7 +849,7 @@ pub enum Instruction {
         dst: u8,
         src: u8,
     },
-    UshrLong2Addr {
+    UShrLong2Addr {
         dst: u8,
         src: u8,
     },
@@ -982,7 +985,7 @@ pub enum Instruction {
         src: u8,
         value: i8,
     },
-    UshrIntLit8 {
+    UShrIntLit8 {
         dst: u8,
         src: u8,
         value: i8,

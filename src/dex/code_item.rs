@@ -2,6 +2,7 @@ use crate::utils::{read_u16_le, read_u32_le};
 
 use super::instruction::Instruction;
 
+#[allow(unused)]
 #[derive(Debug)]
 pub struct CodeItem {
     /// the number of registers used by this code

@@ -1,7 +1,10 @@
 use crate::{
+    errors::TableIdxError,
     traits::parse::TryParseFromBytes,
     utils::{read_u16_le, read_u32_le},
 };
+
+use super::Dex;
 
 #[allow(unused)]
 pub struct FieldIdItem {
@@ -11,6 +14,24 @@ pub struct FieldIdItem {
     pub type_idx: u16,
     /// index into the string_ids list for the name of this field. The string must conform to the syntax for MemberName
     pub name_idx: u32,
+}
+
+impl FieldIdItem {
+    pub fn to_human_readable(&self, dex: &Dex) -> Result<String, TableIdxError> {
+        let class_name = dex
+            .types
+            .get(self.class_idx as usize)
+            .ok_or(TableIdxError::Type(self.class_idx as usize))?;
+        let type_name = dex
+            .types
+            .get(self.type_idx as usize)
+            .ok_or(TableIdxError::Type(self.type_idx as usize))?;
+        let field_name = dex
+            .strings
+            .get(self.name_idx as usize)
+            .ok_or(TableIdxError::String(self.name_idx as usize))?;
+        Ok(format!("{class_name}->{field_name}:{type_name}"))
+    }
 }
 
 impl TryParseFromBytes for FieldIdItem {

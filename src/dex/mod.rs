@@ -5,6 +5,7 @@ pub mod encoded;
 pub mod field_id_item;
 pub mod header_item;
 mod instruction;
+pub mod method_handle_item;
 pub mod method_id_item;
 pub mod proto_id_item;
 mod string;
@@ -17,6 +18,7 @@ use crate::utils::read_u32_le;
 use class_def_item::ClassDefItem;
 use field_id_item::FieldIdItem;
 use header_item::HeaderItem;
+use method_handle_item::MethodHandleItem;
 use method_id_item::MethodIdItem;
 use proto_id_item::ProtoIdItem;
 
@@ -29,6 +31,8 @@ pub struct Dex<'a> {
     pub field_ids: Vec<FieldIdItem>,
     pub method_ids: Vec<MethodIdItem>,
     pub class_defs: Vec<ClassDefItem>,
+    pub call_site_items: Vec<&'a [u8]>,
+    pub method_handles: Vec<MethodHandleItem>,
 }
 
 impl<'a> Dex<'a> {
@@ -148,6 +152,8 @@ impl<'a> Dex<'a> {
             field_ids,
             method_ids,
             class_defs,
+            call_site_items: Vec::new(),
+            method_handles: Vec::new(),
         })
     }
 }
