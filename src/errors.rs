@@ -41,3 +41,11 @@ pub enum TableIdxError {
     #[error("Invalid method handle idx: {0}")]
     MethodHandle(usize),
 }
+
+#[derive(Debug, Error)]
+pub enum ConversionError {
+    #[error("table index error: {0}")]
+    TableIdxError(#[from] TableIdxError),
+    #[error("missing label error: {0}")]
+    MissingLabel(usize),
+}

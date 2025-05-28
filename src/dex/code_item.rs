@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::utils::{read_u16_le, read_u32_le};
 
 use super::instruction::Instruction;
@@ -18,6 +20,8 @@ pub struct CodeItem {
     /// size of the instructions list, in 16-bit code units
     pub insns_size: u32,
     pub insns: Vec<Instruction>,
+    /// Mapping of label position to label index
+    pub labels: HashMap<usize, usize>,
 }
 
 impl CodeItem {
@@ -44,7 +48,7 @@ impl CodeItem {
                 "Buffer too small for CodeItem instructions",
             ));
         }
-
+        let mut labels = HashMap::new();
         let mut insns = Vec::with_capacity(insns_size as usize);
         let mut total_size = 0;
         while total_size < insns_bytes {
@@ -59,6 +63,13 @@ impl CodeItem {
                     break;
                 }
             };
+            if let Some(offset) = insn.offset() {
+                let label = (total_size as i32 + offset * 2) as usize;
+                if !labels.contains_key(&label) {
+                    let len = labels.len();
+                    labels.insert(label, len);
+                }
+            }
             total_size += insn.size_bytes();
             insns.push(insn);
         }
@@ -71,6 +82,7 @@ impl CodeItem {
             debug_info_off,
             insns_size,
             insns,
+            labels,
         })
     }
 }

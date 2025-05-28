@@ -1,6 +1,6 @@
-use std::{fs::File, path::Path};
+use dex::{access_flags::AccessFlags, class_data_item::ClassDataItem, code_item::CodeItem, Dex};
 use rayon::prelude::*;
-use dex::{class_data_item::ClassDataItem, code_item::CodeItem, Dex};
+use std::{fs::File, path::Path};
 
 mod dex;
 mod errors;
@@ -13,8 +13,20 @@ fn write_class<W: std::io::Write>(
     class_name: &str,
     superclass_name: &str,
     class_data_item: &ClassDataItem,
+    acess_flags: u32,
 ) -> Result<(), std::io::Error> {
-    writeln!(writer, ".class {}", class_name)?;
+    let Some(access_flags) = AccessFlags::from_bits(acess_flags) else {
+        return Err(std::io::Error::new(
+            std::io::ErrorKind::InvalidData,
+            "Invalid access flags",
+        ));
+    };
+    writeln!(
+        writer,
+        ".class {} {}",
+        access_flags.to_human_readable(),
+        class_name
+    )?;
     writeln!(writer, ".super {}", superclass_name)?;
 
     let fields = class_data_item
@@ -40,11 +52,18 @@ fn write_class<W: std::io::Write>(
         let method_id = &dex.method_ids[method.method_idx as usize];
         let proto_id = &dex.proto_ids[method_id.proto_idx as usize];
 
-        let return_type = &dex.types[proto_id.return_type_idx as usize];
+        let parameters = match proto_id.to_human_readable(dex) {
+            Ok(params) => params,
+            Err(e) => format!("({e:?})"),
+        };
         let method_name = &dex.strings[method_id.name_idx as usize];
 
         writeln!(writer)?;
-        writeln!(writer, ".method {method_name}(){return_type}")?;
+        writeln!(
+            writer,
+            ".method {} {method_name}{parameters}",
+            method.access_flags.to_human_readable()
+        )?;
 
         let code_item =
             match CodeItem::try_parse_from_bytes_unsized(&dex.raw[method.code_off as usize..]) {
@@ -55,14 +74,19 @@ fn write_class<W: std::io::Write>(
                 }
             };
 
-        for insns in &code_item.insns {
-            match insns.to_human_readable(dex) {
+        let mut total_size = 0;
+        for insn in code_item.insns.iter() {
+            if let Some(label_idx) = code_item.labels.get(&total_size) {
+                writeln!(writer, "  :L{label_idx}")?;
+            }
+            match insn.to_human_readable(dex, total_size, &code_item.labels) {
                 Ok(repr) => writeln!(writer, "    {repr}")?,
                 Err(e) => {
                     eprintln!("Failed to write instruction: {e}");
                     continue;
                 }
             }
+            total_size += insn.size_bytes();
         }
 
         writeln!(writer, ".end method")?;
@@ -101,24 +125,22 @@ fn main() {
 
         let class_out_path =
             out_path.join(format!("{}.smali", class_name_stripped.replace('/', "_")));
-        
+
         let mut class_out_file = File::create(&class_out_path)
             .unwrap_or_else(|_| panic!("Failed to create file: {}", class_out_path.display()));
 
         if let Err(e) = write_class(
             &mut class_out_file,
             &dex,
-            class_name_stripped,
+            class_name,
             superclass_name,
             &class_data_item,
+            class.access_flags,
         ) {
             eprintln!("Failed to write class {}: {}", class_name, e);
         }
     });
 
     let elapsed_time = start_time.elapsed();
-    println!(
-        "Elapsed time: {} seconds",
-        elapsed_time.as_secs_f32()
-    );
+    println!("Elapsed time: {} seconds", elapsed_time.as_secs_f32());
 }

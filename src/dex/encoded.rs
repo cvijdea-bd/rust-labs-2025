@@ -1,5 +1,7 @@
 use crate::utils::decode_uleb128;
 
+use super::access_flags::AccessFlags;
+
 /// https://source.android.com/docs/core/runtime/dex-format#encoded-field-format
 #[allow(unused)]
 #[derive(Debug)]
@@ -44,7 +46,7 @@ pub struct EncodedMethod {
     /// index into the `method_ids` list for the identity of this method (includes the name and descriptor).
     pub method_idx: u64,
     /// access flags for the method (`public`, `final`, etc.). See "`access_flags` Definitions" for details.
-    pub access_flags: u64,
+    pub access_flags: AccessFlags,
     /// offset from the start of the file to the code structure for this method, or `0` if this method is either `abstract` or `native`. The offset should be to a location in the data section. The format of the data is specified by "`code_item`" below.
     pub code_off: u64,
 }
@@ -68,6 +70,12 @@ impl EncodedMethod {
                 "Failed to decode ULEB128 for access flags",
             ))?;
         *offset += bytes_used;
+        let Some(access_flags) = AccessFlags::from_bits(access_flags as u32) else {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::InvalidData,
+                "Invalid access flags",
+            ));
+        };
 
         let (code_off, bytes_used) =
             decode_uleb128(&buffer[*offset..]).ok_or(std::io::Error::new(

@@ -1,6 +1,7 @@
 mod decode;
 mod human_readable;
 mod keyword;
+mod offset;
 mod size;
 
 #[cfg(test)]

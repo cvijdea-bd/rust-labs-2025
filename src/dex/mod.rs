@@ -1,3 +1,4 @@
+pub mod access_flags;
 pub mod class_data_item;
 pub mod class_def_item;
 pub mod code_item;
@@ -9,7 +10,7 @@ pub mod method_handle_item;
 pub mod method_id_item;
 pub mod proto_id_item;
 mod string;
-mod type_list;
+pub mod type_list;
 
 use std::borrow::Cow;
 

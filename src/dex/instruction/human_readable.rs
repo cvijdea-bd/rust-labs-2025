@@ -1,9 +1,19 @@
-use crate::{dex::Dex, errors::TableIdxError};
+use std::collections::HashMap;
+
+use crate::{
+    dex::Dex,
+    errors::{ConversionError, TableIdxError},
+};
 
 use super::Instruction;
 
 impl Instruction {
-    pub fn to_human_readable(&self, dex: &Dex) -> Result<String, TableIdxError> {
+    pub fn to_human_readable(
+        &self,
+        dex: &Dex,
+        idx: usize,
+        labels: &HashMap<usize, usize>,
+    ) -> Result<String, ConversionError> {
         let mut out = String::from(self.opcode());
 
         macro_rules! pull_something {
@@ -11,7 +21,7 @@ impl Instruction {
                 if let Some(something) = $table.get($idx as usize) {
                     something
                 } else {
-                    return Err(TableIdxError::$err($idx as usize));
+                    return Err(TableIdxError::$err($idx as usize).into());
                 }
             };
         }
@@ -46,6 +56,14 @@ impl Instruction {
             };
         }
 
+        let get_label = |offset: i32| -> Result<String, ConversionError> {
+            let label_key = (idx as i32 + offset * 2) as usize;
+            labels
+                .get(&label_key)
+                .map(|label_idx| Ok(format!(":L{label_idx}")))
+                .ok_or(ConversionError::MissingLabel(label_key))?
+        };
+
         let args = match self {
             Self::Nop | Self::ReturnVoid => String::new(),
             Self::Move { dst, src }
@@ -73,17 +91,17 @@ impl Instruction {
             | Self::IntToByte { dst, src }
             | Self::IntToChar { dst, src }
             | Self::IntToShort { dst, src } => {
-                format!("v{dst} v{src}")
+                format!("v{dst}, v{src}")
             }
             Self::MoveFrom16 { dst, src }
             | Self::MoveWideFrom16 { dst, src }
             | Self::MoveObjectFrom16 { dst, src } => {
-                format!("v{dst} v{src}")
+                format!("v{dst}, v{src}")
             }
             Self::Move16 { dst, src }
             | Self::MoveWide16 { dst, src }
             | Self::MoveObject16 { dst, src } => {
-                format!("v{dst} v{src}")
+                format!("v{dst}, v{src}")
             }
             Self::MoveResult { dst }
             | Self::MoveResultWide { dst }
@@ -98,30 +116,30 @@ impl Instruction {
                 format!("v{value}")
             }
             Self::Const4 { dst, value } => {
-                format!("v{dst} {value}")
+                format!("v{dst}, {value}")
             }
             Self::Const16 { dst, value }
             | Self::ConstHigh16 { dst, value }
             | Self::ConstWide16 { dst, value }
             | Self::ConstWideHigh16 { dst, value } => {
-                format!("v{dst} {value}")
+                format!("v{dst}, {value}")
             }
             Self::Const { dst, value } | Self::ConstWide32 { dst, value } => {
                 format!("v{dst} {value}")
             }
             Self::ConstWide { dst, value } => {
-                format!("v{dst} {value}")
+                format!("v{dst}, {value}")
             }
 
             Self::ConstString { dst, string_idx } => {
                 let idx = *string_idx as usize;
                 let string = pull_string!(idx);
-                format!("v{dst} \"{string}\"")
+                format!("v{dst}, \"{string}\"")
             }
             Self::ConstStringJumbo { dst, string_idx } => {
                 let idx = *string_idx as usize;
                 let string = pull_string!(idx);
-                format!("v{dst} \"{string}\"")
+                format!("v{dst}, \"{string}\"")
             }
             Self::ConstClass { dst, type_idx }
             | Self::CheckCast {
@@ -131,7 +149,7 @@ impl Instruction {
             | Self::NewInstance { dst, type_idx } => {
                 let idx = *type_idx as usize;
                 let t = pull_type!(idx);
-                format!("v{dst} {t}")
+                format!("v{dst}, {t}")
             }
             Self::InstanceOf {
                 dst,
@@ -140,7 +158,7 @@ impl Instruction {
             } => {
                 let idx = *type_idx as usize;
                 let t = pull_type!(idx);
-                format!("v{dst} v{reference} {t}")
+                format!("v{dst}, v{reference}, {t}")
             }
             Self::NewArray {
                 dst,
@@ -149,7 +167,7 @@ impl Instruction {
             } => {
                 let idx = *type_idx as usize;
                 let t = pull_type!(idx);
-                format!("v{dst} v{size} {t}")
+                format!("v{dst}, v{size}, {t}")
             }
             Self::FilledNewArray {
                 type_idx,
@@ -166,7 +184,7 @@ impl Instruction {
                 }
                 args_str = args_str.trim_start().to_string();
                 let t = pull_type!(idx);
-                format!("{args_str} {t}")
+                format!("{args_str}, {t}")
             }
             Self::FilledNewArrayRange {
                 type_idx,
@@ -176,7 +194,7 @@ impl Instruction {
                 let idx = *type_idx as usize;
                 let mut args_str = String::new();
                 for i in 0..*arg_cnt {
-                    let local_arg = format!(" v{}", *first_arg + i as u16);
+                    let local_arg = format!(" v{},", *first_arg + i as u16);
                     args_str.push_str(&local_arg);
                 }
                 args_str = args_str.trim_start().to_string();
@@ -184,26 +202,31 @@ impl Instruction {
                 format!("{args_str} {t}")
             }
             Self::FillArrayData { array, offset } => {
-                format!("v{array} {offset}") // TODO: Use label?
+                let label = get_label(*offset)?;
+                format!("v{array}, {label}")
             }
             Self::Goto { offset } => {
-                format!("{offset}")
+                let label = get_label(*offset as i32)?;
+                format!("{label}")
             }
             Self::Goto16 { offset } => {
-                format!("{offset}")
+                let label = get_label(*offset as i32)?;
+                format!("{label}")
             }
             Self::Goto32 { offset } => {
-                format!("{offset}")
+                let label = get_label(*offset as i32)?;
+                format!("{label}")
             }
             Self::PackedSwitch { value, offset } | Self::SparseSwitch { value, offset } => {
-                format!("v{value} {offset}") // TODO: Use label?
+                let label = get_label(*offset as i32)?;
+                format!("v{value}, {label}")
             }
             Self::CmplFloat { dst, src_a, src_b }
             | Self::CmpgFloat { dst, src_a, src_b }
             | Self::CmplDouble { dst, src_a, src_b }
             | Self::CmpgDouble { dst, src_a, src_b }
             | Self::CmpLong { dst, src_a, src_b } => {
-                format!("v{dst} v{src_a} v{src_b}")
+                format!("v{dst}, v{src_a}, v{src_b}")
             }
             Self::IfEq { a, b, offset }
             | Self::IfNe { a, b, offset }
@@ -211,7 +234,8 @@ impl Instruction {
             | Self::IfGe { a, b, offset }
             | Self::IfGt { a, b, offset }
             | Self::IfLe { a, b, offset } => {
-                format!("v{a} v{b} {offset}") // TODO: Use label?
+                let label = get_label(*offset as i32)?;
+                format!("v{a}, v{b}, {label}")
             }
             Self::IfEqz { a, offset }
             | Self::IfNez { a, offset }
@@ -219,7 +243,8 @@ impl Instruction {
             | Self::IfGez { a, offset }
             | Self::IfGtz { a, offset }
             | Self::IfLez { a, offset } => {
-                format!("v{a} {offset}") // TODO: Use label?
+                let label = get_label(*offset as i32)?;
+                format!("v{a}, {label}")
             }
             Self::Aget { src, array, index }
             | Self::AgetWide { src, array, index }
@@ -263,7 +288,7 @@ impl Instruction {
                 array,
                 index,
             } => {
-                format!("v{src} v{array} v{index}")
+                format!("v{src}, v{array}, v{index}")
             }
             Self::Iget {
                 src,
@@ -336,7 +361,7 @@ impl Instruction {
                 field_idx,
             } => {
                 format!(
-                    "v{src} v{object} {}",
+                    "v{src}, v{object}, {}",
                     pull_field!(*field_idx).to_human_readable(dex)?
                 )
             }
@@ -375,7 +400,10 @@ impl Instruction {
                 dst: src,
                 field_idx,
             } => {
-                format!("v{src} {}", pull_field!(*field_idx).to_human_readable(dex)?)
+                format!(
+                    "v{src}, {}",
+                    pull_field!(*field_idx).to_human_readable(dex)?
+                )
             }
             Self::InvokeVirtual {
                 method_idx,
@@ -407,12 +435,15 @@ impl Instruction {
                 let mut args_str = String::new();
                 for i in 0..*arg_cnt {
                     if let Some(arg) = args.get(i as usize) {
-                        let local_arg = format!(" v{arg}");
+                        let mut local_arg = format!(" v{arg}");
+                        if i < *arg_cnt - 1 {
+                            local_arg.push(',');
+                        }
                         args_str.push_str(&local_arg);
                     }
                 }
                 args_str = args_str.trim_start().to_string();
-                format!("{args_str} {}", method.to_human_readable(dex)?)
+                format!("{{ {args_str} }}, {}", method.to_human_readable(dex)?)
             }
             Self::InvokeVirtualRange {
                 method_idx,
@@ -443,7 +474,7 @@ impl Instruction {
 
                 let mut args_str = String::new();
                 for i in 0..*arg_cnt {
-                    let local_arg = format!(" v{}", *first_arg + i as u16);
+                    let local_arg = format!(" v{},", *first_arg + i as u16);
                     args_str.push_str(&local_arg);
                 }
                 args_str = args_str.trim_start().to_string();
@@ -481,7 +512,7 @@ impl Instruction {
             | Self::MulDouble { dst, src_a, src_b }
             | Self::DivDouble { dst, src_a, src_b }
             | Self::RemDouble { dst, src_a, src_b } => {
-                format!("v{dst} v{src_a} v{src_b}")
+                format!("v{dst}, v{src_a}, v{src_b}")
             }
             Self::AddInt2Addr { dst, src }
             | Self::SubInt2Addr { dst, src }
@@ -515,7 +546,7 @@ impl Instruction {
             | Self::MulDouble2Addr { dst, src }
             | Self::DivDouble2Addr { dst, src }
             | Self::RemDouble2Addr { dst, src } => {
-                format!("v{dst} v{src}")
+                format!("v{dst}, v{src}")
             }
             Self::AddIntLit16 { dst, src, value }
             | Self::RsubInt { dst, src, value }
@@ -525,7 +556,7 @@ impl Instruction {
             | Self::AndIntLit16 { dst, src, value }
             | Self::OrIntLit16 { dst, src, value }
             | Self::XorIntLit16 { dst, src, value } => {
-                format!("v{dst} v{src} {value}")
+                format!("v{dst}, v{src}, {value}")
             }
             Self::AddIntLit8 { dst, src, value }
             | Self::RsubIntLit8 { dst, src, value }
@@ -538,7 +569,7 @@ impl Instruction {
             | Self::ShlIntLit8 { dst, src, value }
             | Self::ShrIntLit8 { dst, src, value }
             | Self::UShrIntLit8 { dst, src, value } => {
-                format!("v{dst} v{src} {value}")
+                format!("v{dst}, v{src}, {value}")
             }
             Self::InvokePolymorphic {
                 method_idx,
@@ -552,14 +583,14 @@ impl Instruction {
                 let mut args_str = String::new();
                 for i in 0..*arg_cnt {
                     if let Some(arg) = args.get(i as usize) {
-                        let local_arg = format!(" v{arg}");
+                        let local_arg = format!(" v{arg},");
                         args_str.push_str(&local_arg);
                     }
                 }
                 args_str = args_str.trim_start().to_string();
 
                 format!(
-                    "{args_str} {} {}",
+                    "{args_str} {}, {}",
                     method.to_human_readable(dex)?,
                     proto.to_human_readable(dex)?
                 )
@@ -575,13 +606,13 @@ impl Instruction {
 
                 let mut args_str = String::new();
                 for i in 0..*arg_cnt {
-                    let local_arg = format!(" v{}", *first_arg + i as u16);
+                    let local_arg = format!(" v{},", *first_arg + i as u16);
                     args_str.push_str(&local_arg);
                 }
                 args_str = args_str.trim_start().to_string();
 
                 format!(
-                    "{args_str} {} {}",
+                    "{args_str} {}, {}",
                     method.to_human_readable(dex)?,
                     proto.to_human_readable(dex)?
                 )
@@ -595,7 +626,7 @@ impl Instruction {
                 let mut args_str = String::new();
                 for i in 0..*arg_cnt {
                     if let Some(arg) = args.get(i as usize) {
-                        let local_arg = format!(" v{arg}");
+                        let local_arg = format!(" v{arg},");
                         args_str.push_str(&local_arg);
                     }
                 }
@@ -611,7 +642,7 @@ impl Instruction {
 
                 let mut args_str = String::new();
                 for i in 0..*arg_cnt {
-                    let local_arg = format!(" v{}", *first_arg + i as u16);
+                    let local_arg = format!(" v{},", *first_arg + i as u16);
                     args_str.push_str(&local_arg);
                 }
                 args_str = args_str.trim_start().to_string();
@@ -624,11 +655,11 @@ impl Instruction {
             } => {
                 let method_handle =
                     pull_something!(*method_handle_idx, dex.method_handles, MethodHandle);
-                format!("v{dst} {method_handle:?}")
+                format!("v{dst}, {method_handle:?}")
             }
             Self::ConstMethodType { dst, proto_idx } => {
                 let proto = pull_proto!(*proto_idx);
-                format!("v{dst} {}", proto.to_human_readable(dex)?)
+                format!("v{dst}, {}", proto.to_human_readable(dex)?)
             }
         };
 

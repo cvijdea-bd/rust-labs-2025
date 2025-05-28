@@ -1,6 +1,6 @@
 use crate::{traits::parse::TryParseFromBytes, utils::read_u32_le};
 
-use super::Dex;
+use super::{type_list::TypeList, Dex};
 
 #[allow(unused)]
 pub struct ProtoIdItem {
@@ -9,7 +9,7 @@ pub struct ProtoIdItem {
     /// index into the `type_ids` list for the return type of this prototype
     pub return_type_idx: u32,
     /// offset from the start of the file to the list of parameter types for this prototype, or 0 if this prototype has no parameters. This offset, if non-zero, should be in the data section, and the data there should be in the format specified by "type_list" below. Additionally, there should be no reference to the type void in the list.
-    pub parameters_off: u32,j 
+    pub parameters_off: u32,
 }
 
 impl ProtoIdItem {
@@ -17,8 +17,24 @@ impl ProtoIdItem {
         let return_type = dex.types.get(self.return_type_idx as usize).ok_or(
             crate::errors::TableIdxError::Type(self.return_type_idx as usize),
         )?;
-
-        Ok(format!("({}){return_type}", self.parameters_off))
+        let mut parameters_str = String::new();
+        if self.parameters_off > 0 {
+            match TypeList::try_parse_from_bytes_unsized(&dex.raw[self.parameters_off as usize..]) {
+                Ok(type_list) => {
+                    for type_item in type_list.list {
+                        let type_name = dex.types.get(type_item.type_idx as usize).ok_or(
+                            crate::errors::TableIdxError::Type(type_item.type_idx as usize),
+                        )?;
+                        if !parameters_str.is_empty() {
+                            parameters_str.push_str(", ");
+                        }
+                        parameters_str.push_str(type_name);
+                    }
+                }
+                Err(e) => parameters_str.push_str(e.to_string().as_str()),
+            };
+        }
+        Ok(format!("({parameters_str}){return_type}"))
     }
 }
 
