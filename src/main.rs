@@ -10,7 +10,6 @@ mod utils;
 fn write_class<W: std::io::Write>(
     writer: &mut W,
     dex: &Dex,
-    buffer: &[u8],
     class_name: &str,
     superclass_name: &str,
     class_data_item: &ClassDataItem,
@@ -48,7 +47,7 @@ fn write_class<W: std::io::Write>(
         writeln!(writer, ".method {method_name}(){return_type}")?;
 
         let code_item =
-            match CodeItem::try_parse_from_bytes_unsized(&buffer[method.code_off as usize..]) {
+            match CodeItem::try_parse_from_bytes_unsized(&dex.raw[method.code_off as usize..]) {
                 Ok(code_item) => code_item,
                 Err(e) => {
                     eprintln!("Failed to parse CodeItem for {}: {}", method_name, e);
@@ -109,7 +108,6 @@ fn main() {
         if let Err(e) = write_class(
             &mut class_out_file,
             &dex,
-            &buffer,
             class_name_stripped,
             superclass_name,
             &class_data_item,

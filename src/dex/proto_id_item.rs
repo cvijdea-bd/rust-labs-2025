@@ -9,17 +9,15 @@ pub struct ProtoIdItem {
     /// index into the `type_ids` list for the return type of this prototype
     pub return_type_idx: u32,
     /// offset from the start of the file to the list of parameter types for this prototype, or 0 if this prototype has no parameters. This offset, if non-zero, should be in the data section, and the data there should be in the format specified by "type_list" below. Additionally, there should be no reference to the type void in the list.
-    pub parameters_off: u32,
+    pub parameters_off: u32,j 
 }
 
 impl ProtoIdItem {
     pub fn to_human_readable(&self, dex: &Dex) -> Result<String, crate::errors::TableIdxError> {
-        // let shorty = dex.strings.get(self.shorty_idx as usize).ok_or(
-        //     crate::errors::TableIdxError::StringIdx(self.shorty_idx as usize),
-        // )?;
         let return_type = dex.types.get(self.return_type_idx as usize).ok_or(
             crate::errors::TableIdxError::Type(self.return_type_idx as usize),
         )?;
+
         Ok(format!("({}){return_type}", self.parameters_off))
     }
 }

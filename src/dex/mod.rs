@@ -9,6 +9,7 @@ pub mod method_handle_item;
 pub mod method_id_item;
 pub mod proto_id_item;
 mod string;
+mod type_list;
 
 use std::borrow::Cow;
 
@@ -24,6 +25,7 @@ use proto_id_item::ProtoIdItem;
 
 #[allow(unused)]
 pub struct Dex<'a> {
+    pub raw: &'a [u8],
     pub header_item: HeaderItem,
     pub strings: Vec<Cow<'a, str>>,
     pub types: Vec<Cow<'a, str>>,
@@ -145,6 +147,7 @@ impl<'a> Dex<'a> {
         let class_defs = Self::read_class_def_items(buffer, &header_item);
 
         Ok(Self {
+            raw: buffer,
             header_item,
             strings,
             types,
